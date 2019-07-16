@@ -75,8 +75,10 @@
         <module name="JavadocMethod">
             <property name="scope" value="public"/>
         </module>
+        <module name="MissingJavadocMethod"/>
         <module name="JavadocStyle"/>
         <module name="JavadocType"/>
+        <module name="MissingJavadocType"/>
 
         <module name="ArrayTypeStyle"/>
         <module name="AvoidEscapedUnicodeCharacters">

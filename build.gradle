@@ -112,7 +112,7 @@ compileJava {
 
 application {
     // Define the main class for the application
-    mainClassName = 'alyx.App'
+    mainClassName = 'gg.sep.alyx.Launcher'
 }
 
 test {
