@@ -6,7 +6,7 @@ package gg.sep.alyx;
 public final class Launcher {
 
     private Launcher() { }
-    
+
     /**
      * Main entry point for the Alyx application.
      * @param args Command line arguments passed to the application.

@@ -23,7 +23,7 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 11.0
 
 // variable definitions
-project.ext {
+ext {
     lombokVersion = '1.18.+'
     checkstyleVersion = '8.22'
     spotbugsVersion = '3.1.12'
@@ -49,9 +49,9 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-core:2.11.+'
 
     // build dependencies
-    compileOnly "org.projectlombok:lombok:$project.ext.lombokVersion"
-    compileOnly "com.github.spotbugs:spotbugs-annotations:$project.ext.spotbugsVersion"
-    annotationProcessor "org.projectlombok:lombok:$project.ext.lombokVersion"
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:$spotbugsVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
     // Use JUnit Jupiter API for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
@@ -69,15 +69,15 @@ sourceSets {
 }
 
 checkstyle {
-    ignoreFailures = false
+    ignoreFailures false
     configFile file('config/checkstyle/checkstyle.xml')
     configDir file('config/checkstyle')
-    toolVersion = project.ext.checkstyleVersion
+    toolVersion checkstyleVersion
 }
 
 spotbugs {
-    ignoreFailures = false
-    toolVersion = project.ext.spotbugsVersion
+    ignoreFailures false
+    toolVersion spotbugsVersion
 }
 
 tasks.withType(SpotBugsTask) {
