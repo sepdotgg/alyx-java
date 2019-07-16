@@ -4,11 +4,12 @@
 package alyx;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class AppTest {
-    @Test void appHasAGreeting() {
-        App classUnderTest = new App();
+public class AppTest {
+    @Test
+    public void testAppHasGreeting() {
+        final App classUnderTest = new App();
         assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
     }
 }
