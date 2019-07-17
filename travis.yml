@@ -1,0 +1,9 @@
+language: java
+install: true
+
+jdk:
+  - oraclejdk11
+  - openjdk11
+
+script:
+  - ./gradlew build

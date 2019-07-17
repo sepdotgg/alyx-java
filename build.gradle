@@ -19,6 +19,7 @@ group 'gg.sep'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 11.0
+targetCompatibility = 11.0
 
 // variable definitions
 ext {
