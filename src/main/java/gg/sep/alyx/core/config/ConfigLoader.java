@@ -106,15 +106,42 @@ public class ConfigLoader {
     /**
      * Writes out the full {@link AlyxConfig} JSON file, overwriting if it already exists.
      * @param alyxConfig The {@link AlyxConfig} to convert to JSON and write out.
+     * @return Result with an error message if writing the config failed.
      */
-    public void writeConfig(final AlyxConfig alyxConfig) {
+    public Result<?, String> writeConfig(final AlyxConfig alyxConfig) {
         final String jsonString = new GsonBuilder().setPrettyPrinting().create()
             .toJson(alyxConfig, AlyxConfig.class);
         try {
+            if (!configFileExists()) {
+                final Result<?, String> createConfigFile = createConfigFile();
+                if (createConfigFile.isErr()) {
+                    return createConfigFile;
+                }
+            }
             Files.writeString(getAlyxConfigFile().toPath(), jsonString);
+            return Ok.of(true);
         } catch (final IOException e) {
             log.error(e);
+            return Err.of("Error occurred while attempting to write Alyx config: " + e);
         }
+    }
+
+    /**
+     * Ensure the master config directory exists and that we can write to it.
+     * @return An error message which can be surfaced to the user if there's a problem with the directory.
+     */
+    private static Result<?, String> ensureConfigDirectory() {
+        final File configDir = new File(CONFIG_DIR);
+        // if it exists and we can write to it, we're good
+        if (configDir.exists()) {
+            if (configDir.canWrite()) {
+                return Ok.of(true);
+            }
+            return Err.of("We don't have permissions to write to the config directory: " + configDir);
+        } else if (!configDir.mkdirs()) {
+            return Err.of("Failed to create the config directory: " + configDir);
+        }
+        return Ok.of(true);
     }
 
     /**
@@ -123,6 +150,10 @@ public class ConfigLoader {
      */
     private static Result<?, String> createConfigFile() {
         final File configFile = getAlyxConfigFile();
+        final Result<?, String> ensureConfigDir = ensureConfigDirectory();
+        if (ensureConfigDir.isErr()) {
+            return ensureConfigDir;
+        }
 
         try {
             configFile.createNewFile();

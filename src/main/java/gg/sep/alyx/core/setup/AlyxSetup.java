@@ -1,6 +1,7 @@
 package gg.sep.alyx.core.setup;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,10 @@ public class AlyxSetup {
     public static Result<AlyxConfig, String> enterSetup() {
         // check if the config file exists
         if (!ConfigLoader.configFileExists()) {
-            setupNewConfig();
+            final Result<?, String> setupNewConfig = setupNewConfig();
+            if (setupNewConfig.isErr()) {
+                return Err.of(setupNewConfig.unwrapErr());
+            }
         }
 
         final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig();
@@ -97,8 +101,8 @@ public class AlyxSetup {
     /**
      * Writes (overwrites) the config file to an empty config.
      */
-    private static void setupNewConfig() {
-        ConfigLoader.writeConfig(AlyxConfig.EMPTY);
+    private static Result<?, String> setupNewConfig() {
+        return ConfigLoader.writeConfig(AlyxConfig.EMPTY);
     }
 
     private static void welcomeSetup(final TextTerminal terminal) {
@@ -155,9 +159,9 @@ public class AlyxSetup {
         final String stepText =
             "Step 2 - Choosing a Storage Engine\n" +
             "--------------------------------------------\n";
-
         final String descText = "Select your preferred engine for storing the bot's config and settings. " +
             "If you're not sure, leave this as 'json'";
+
         return textIO
             .newEnumInputReader(StorageType.class)
             .read(List.of(stepText, descText));
@@ -173,7 +177,6 @@ public class AlyxSetup {
         final String stepText =
             "Step 3 - Choosing a Config Storage Directory\n" +
             "--------------------------------------------\n";
-
         final String descText = "Enter a directory to use for storing the bot's configuration files and settings." +
             "We've selected a default location based on your operating system, but you can change this.\n";
 
@@ -207,17 +210,25 @@ public class AlyxSetup {
      */
     private static List<String> checkConfigFilePath(final String path, final String inputName) {
         final File file = new File(path);
+
+        final List<String> errors = new ArrayList<>();
+
         // make sure it's absolute
         if (!file.isAbsolute()) {
-            return List.of("The path must be an absolute directory.");
+            errors.add(String.format("%d: The path must be an absolute directory.", errors.size() + 1));
         }
 
-        if ((!file.exists() && !file.mkdirs()) || (!file.isDirectory() || !file.canWrite())) {
-            // error
+        if (!file.exists() && !file.mkdirs()) {
+            errors.add(String.format("%d: There was a problem while attempting to " +
+                "create that directory. Please check permissions.", errors.size() + 1));
+        } else if (file.exists() && !file.isDirectory()) {
+            errors.add(String.format("%d: The supplied path must be a directory.", errors.size() + 1));
+        } else if (file.exists() && !file.canWrite()) {
+            errors.add(String.format("%d: We do not have permission to write to that directory.", errors.size() + 1));
+        }
 
-            return List.of(
-                String.format("The chosen path is not valid: %s%n" +
-                    "Please check permissions and that it is a directory.", path));
+        if (errors.size() > 0) {
+            return errors;
         }
         return null;
     }
