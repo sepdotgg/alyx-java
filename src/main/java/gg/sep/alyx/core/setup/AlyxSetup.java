@@ -44,14 +44,14 @@ public class AlyxSetup {
      */
     public static Result<AlyxConfig, String> enterSetup() {
         // check if the config file exists
-        if (!ConfigLoader.configFileExists()) {
+        if (!ConfigLoader.fileIsReadable(ConfigLoader.ALYX_DEFAULT_CONFIG_FILE)) {
             final Result<?, String> setupNewConfig = setupNewConfig();
             if (setupNewConfig.isErr()) {
                 return Err.of(setupNewConfig.unwrapErr());
             }
         }
 
-        final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig();
+        final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig(ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
         final AlyxConfig alyxConfig = loadConfig.orElseThrow(() -> new RuntimeException("Failed to load Alyx config."));
 
         final TextIO textIO = TextIoFactory.getTextIO();
@@ -92,7 +92,7 @@ public class AlyxSetup {
             .configDir(botConfigPath)
             .build();
 
-        ConfigLoader.updateBotConfig(botEntry);
+        ConfigLoader.updateBotConfig(botEntry, ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
         alyxConfig.getBots().put(botName, botEntry);
         terminal.dispose();
         return Ok.of(alyxConfig);
@@ -102,7 +102,7 @@ public class AlyxSetup {
      * Writes (overwrites) the config file to an empty config.
      */
     private static Result<?, String> setupNewConfig() {
-        return ConfigLoader.writeConfig(AlyxConfig.EMPTY);
+        return ConfigLoader.writeConfig(AlyxConfig.EMPTY, ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
     }
 
     private static void welcomeSetup(final TextTerminal terminal) {
