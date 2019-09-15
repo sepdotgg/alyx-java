@@ -38,7 +38,6 @@ public class ConfigLoader {
     private static final String CONFIG_DIR = APP_DIRS.getUserConfigDir(APP_NAME, CONFIG_VERSION, APP_AUTHOR, ROAMING);
     private static final String ALYX_CONFIG_PATH = CONFIG_DIR + "/alyx-discord-bot.json";
 
-
     public static final File ALYX_DEFAULT_CONFIG_FILE = new File(ALYX_CONFIG_PATH);
 
     /**
@@ -50,16 +49,9 @@ public class ConfigLoader {
     }
 
     /**
-     * Checks if the main Alyx config file exists and is readable.
-     * @return {@code true} if the main Alyx config file exists and is readable, else {@code false}.
-     */
-    public static boolean fileIsReadable(final File file)
-    {
-        return file.canRead();
-    }
-
-    /**
      * Attempts to load the Alyx config file. If any {@link IOException} gets thrown, will return empty instead.
+     *
+     * @param configFile The bot's config file.
      * @return Optional of the default config file if successful, otherwise empty.
      */
     public static Optional<AlyxConfig> loadConfig(final File configFile) {
@@ -76,8 +68,9 @@ public class ConfigLoader {
 
     /**
      * Updates a bot entry in the main Alyx config file.
-     * =
+     *
      * If the bot entry doesn't exist, it is created.
+     * @param configFile The bot's config file.
      * @param bot The bot entry to add or update.
      */
     public void updateBotConfig(final BotEntry bot, final File configFile) {
@@ -88,7 +81,7 @@ public class ConfigLoader {
                 writeConfig(c, configFile);
             },
             () -> {
-                if (!fileIsReadable(configFile)) {
+                if (!configFile.exists()) {
                     createConfigFile(configFile);
                 }
                 final AlyxConfig config = AlyxConfig.builder()
@@ -101,13 +94,14 @@ public class ConfigLoader {
     /**
      * Writes out the full {@link AlyxConfig} JSON file, overwriting if it already exists.
      * @param alyxConfig The {@link AlyxConfig} to convert to JSON and write out.
+     * @param configFile The bot's config file.
      * @return Result with an error message if writing the config failed.
      */
     public Result<?, String> writeConfig(final AlyxConfig alyxConfig, final File configFile) {
         final String jsonString = new GsonBuilder().setPrettyPrinting().create()
             .toJson(alyxConfig, AlyxConfig.class);
         try {
-            if (!fileIsReadable(configFile)) {
+            if (!configFile.exists()) {
                 final Result<?, String> createConfigFile = createConfigFile(configFile);
                 if (createConfigFile.isErr()) {
                     return createConfigFile;
@@ -123,6 +117,8 @@ public class ConfigLoader {
 
     /**
      * Ensure the master config directory exists and that we can write to it.
+     *
+     * @param configFile The bot's config file.
      * @return An error message which can be surfaced to the user if there's a problem with the directory.
      */
     private static Result<?, String> ensureConfigDirectory(final File configFile) {
@@ -141,6 +137,8 @@ public class ConfigLoader {
 
     /**
      * Returns an {@link Ok} result if the config file was created successfully, otherwise an {@link Err}.
+     *
+     * @param configFile The bot's config file.
      * @return An {@link Ok} result if the config file was created successfully, otherwise an {@link Err}.
      */
     private static Result<?, String> createConfigFile(final File configFile) {

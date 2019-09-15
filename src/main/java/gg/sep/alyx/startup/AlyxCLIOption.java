@@ -11,7 +11,8 @@ import org.apache.commons.cli.Options;
 @AllArgsConstructor
 public enum AlyxCLIOption {
     SETUP("s", "setup", false, "Setups up a new bot"),
-    BOT("b", "bot", true, "Name of the existing bot to launch");
+    BOT("b", "bot", true, "Name of the existing bot to launch"),
+    CONFIG_FILE("config", "config", true, "Path to the bot's config file.");
 
     private String opt;
     private String longOpt;

@@ -40,18 +40,23 @@ public class AlyxSetup {
      * Starts a new Setup session, returning an {@link Ok} Result if it was successful containing the completed config.
      *
      * If it was not successful, returns an {@link Err} containing the error message.
+     * @param configFile The bot's config file.
      * @return An {@link Ok} containing the completed {@link AlyxConfig} if successful, otherwise an {@link Err}.
      */
-    public static Result<AlyxConfig, String> enterSetup() {
+    public static Result<BotEntry, String> enterSetup(final File configFile) {
         // check if the config file exists
-        if (!ConfigLoader.fileIsReadable(ConfigLoader.ALYX_DEFAULT_CONFIG_FILE)) {
-            final Result<?, String> setupNewConfig = setupNewConfig();
+        // check if the file is a directory
+        if (configFile.isDirectory()) {
+            return Err.of("The config file must be a file, not a directory.");
+        }
+        if (configFile.canRead()) {
+            final Result<?, String> setupNewConfig = setupNewConfig(configFile);
             if (setupNewConfig.isErr()) {
                 return Err.of(setupNewConfig.unwrapErr());
             }
         }
 
-        final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig(ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
+        final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig(configFile);
         final AlyxConfig alyxConfig = loadConfig.orElseThrow(() -> new RuntimeException("Failed to load Alyx config."));
 
         final TextIO textIO = TextIoFactory.getTextIO();
@@ -92,17 +97,17 @@ public class AlyxSetup {
             .configDir(botConfigPath)
             .build();
 
-        ConfigLoader.updateBotConfig(botEntry, ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
+        ConfigLoader.updateBotConfig(botEntry, configFile);
         alyxConfig.getBots().put(botName, botEntry);
         terminal.dispose();
-        return Ok.of(alyxConfig);
+        return Ok.of(botEntry);
     }
 
     /**
      * Writes (overwrites) the config file to an empty config.
      */
-    private static Result<?, String> setupNewConfig() {
-        return ConfigLoader.writeConfig(AlyxConfig.EMPTY, ConfigLoader.ALYX_DEFAULT_CONFIG_FILE);
+    private static Result<?, String> setupNewConfig(final File configFile) {
+        return ConfigLoader.writeConfig(AlyxConfig.EMPTY, configFile);
     }
 
     private static void welcomeSetup(final TextTerminal terminal) {

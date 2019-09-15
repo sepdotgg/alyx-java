@@ -1,9 +1,6 @@
 package gg.sep.alyx;
 
-import org.apache.commons.cli.CommandLine;
-
-import gg.sep.alyx.core.config.AlyxConfig;
-import gg.sep.alyx.core.setup.AlyxSetup;
+import gg.sep.alyx.core.config.BotEntry;
 import gg.sep.alyx.startup.AlyxCommandLineParser;
 import gg.sep.alyx.util.result.Result;
 
@@ -19,21 +16,13 @@ public final class Launcher {
      * @param args Command line arguments passed to the application.
      */
     public static void main(final String[] args) {
-        // TODO: We don't need a result for this, it's just a POC
-        final Result<CommandLine, String> cmdResult = AlyxCommandLineParser.buildCommandLine(args);
-        final CommandLine cmd = cmdResult.unwrapOrElse(e -> {
-            throw new RuntimeException(cmdResult.unwrapErr());
+
+        final Result<BotEntry, String> startupResult = AlyxCommandLineParser.alyxStartup(args);
+        final BotEntry botEntry = startupResult.unwrapOrElse(s -> {
+            throw new RuntimeException(s);
         });
 
-        if (cmd.hasOption("s")) {
-            if (cmd.hasOption("b")) {
-                errorExit("The bot and setup options cannot be passed together");
-            }
-            final Result<AlyxConfig, String> setupConfig = AlyxSetup.enterSetup();
-            setupConfig.unwrapOrElse(e -> {
-                throw new RuntimeException(e);
-            });
-        }
+        System.out.println(botEntry);
     }
 
     /**
