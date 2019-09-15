@@ -1,7 +1,7 @@
 package gg.sep.alyx;
 
 import gg.sep.alyx.core.config.BotEntry;
-import gg.sep.alyx.startup.AlyxCommandLineParser;
+import gg.sep.alyx.core.startup.AlyxCommandLineParser;
 import gg.sep.alyx.util.result.Result;
 
 /**

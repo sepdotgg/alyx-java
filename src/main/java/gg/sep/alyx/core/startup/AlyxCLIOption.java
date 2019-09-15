@@ -1,4 +1,4 @@
-package gg.sep.alyx.startup;
+package gg.sep.alyx.core.startup;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

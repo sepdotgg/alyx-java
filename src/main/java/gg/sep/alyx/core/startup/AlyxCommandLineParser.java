@@ -1,4 +1,4 @@
-package gg.sep.alyx.startup;
+package gg.sep.alyx.core.startup;
 
 import java.io.File;
 import java.util.Optional;
