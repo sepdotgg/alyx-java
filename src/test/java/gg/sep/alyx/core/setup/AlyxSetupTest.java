@@ -20,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
+import gg.sep.alyx.Launcher;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.StorageType;
 import gg.sep.alyx.model.config.BotEntry;
@@ -31,9 +32,9 @@ import gg.sep.alyx.util.result.Result;
 public class AlyxSetupTest {
 
     @SuppressWarnings("unchecked")
-    private TextIO mockTextIOStuff(final String botName, final StorageType storageType, final boolean overwriteBot,
-                                   final String configDirPath, final boolean confirmConfigDirPath,
-                                   final boolean explicitOrder) {
+    private static TextIO mockTextIOStuff(final String botName, final StorageType storageType,
+                                          final boolean overwriteBot, final String configDirPath,
+                                          final boolean confirmConfigDirPath, final boolean explicitOrder) {
         final TextIO mockTextIO = Mockito.mock(TextIO.class);
         final TextTerminal mockTerminal = Mockito.mock(TextTerminal.class);
         Mockito.when(mockTextIO.getTextTerminal()).thenReturn(mockTerminal);
@@ -134,6 +135,27 @@ public class AlyxSetupTest {
             .build();
 
         final Result<BotEntry, String> result = alyxSetup.startSetup();
+        final BotEntry botEntry = result.unwrapOrElse((e) -> {
+            throw new AssertionError(e);
+        });
+
+        assertEquals(expectedBotEntry, botEntry);
+    }
+
+    @Test
+    void launcherSetup_HappyPath(@TempDir final Path tempDir) {
+        final BotEntry expectedBotEntry = BotEntry.builder()
+            .botName("Foo")
+            .storageType(StorageType.JSON)
+            .dataDir(tempDir)
+            .build();
+
+        final TextIO mockTextIO = mockTextIOStuff(expectedBotEntry.getBotName(), expectedBotEntry.getStorageType(),
+            false, expectedBotEntry.getDataDir().toAbsolutePath().toString(), true, false);
+        final Path configFile = Path.of(tempDir.toAbsolutePath().toString(), "config.json");
+        final ConfigHandler configHandler = new ConfigHandler(configFile);
+
+        final Result<BotEntry, String> result = Launcher.setup(configHandler, mockTextIO);
         final BotEntry botEntry = result.unwrapOrElse((e) -> {
             throw new AssertionError(e);
         });

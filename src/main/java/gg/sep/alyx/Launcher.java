@@ -44,8 +44,9 @@ public final class Launcher {
 
         // handle setup mode or existing bot mode
         final String botName = arguments.getBotName().orElse(null);
-        final Result<BotEntry, String> botEntry = arguments.isSetup() ? setup(configHandler) :
-            loadExisting(botName, configHandler);
+        final TextIO textIO = TextIoFactory.getTextIO();
+        final Result<BotEntry, String> botEntry = arguments.isSetup() ? setup(configHandler, textIO) :
+            loadExisting(botName, configHandler, textIO);
 
         if (botEntry.isErr()) {
             errorExit(botEntry.unwrapErr());
@@ -54,18 +55,15 @@ public final class Launcher {
         System.out.println(botEntry.unwrap());
     }
 
-    private static Result<BotEntry, String> setup(final ConfigHandler configHandler) {
-        final AlyxSetup alyxSetup = AlyxSetup.builder()
-                .configHandler(configHandler)
-                .defaultDataDir(ConfigHandler.ALYX_DEFAULT_DATA_DIR)
-                .textIO(TextIoFactory.getTextIO())
-                .build();
-
-        // run the setup process
-        return alyxSetup.startSetup();
-    }
-
-    private static Result<BotEntry, String> loadExisting(final String botName, final ConfigHandler configHandler) {
+    /**
+     * Attempts to load an existing bot entry from the specified configuration.
+     * @param botName Name of the bot to load.
+     * @param configHandler Config handler instance for the config file.
+     * @param textIO TextIO instance for allowing the user to select a valid bot entry from the ones in the config file.
+     * @return Result of a BotEntry of loaded successfully, otherwise an error string.
+     */
+    public static Result<BotEntry, String> loadExisting(final String botName, final ConfigHandler configHandler,
+                                                        final TextIO textIO) {
         // try to load the existing configuration file, or return an error if unable to do so
         final Optional<AlyxConfig> loadedConfig = configHandler.loadConfig();
         if (loadedConfig.isEmpty()) {
@@ -79,7 +77,6 @@ public final class Launcher {
             if (alyxConfig.getBots().isEmpty()) {
                 return Err.of("There are no bots configured in that config file. Run --setup");
             }
-            final TextIO textIO = TextIoFactory.getTextIO();
             loadBotName = textIO.newStringInputReader()
                 .withNumberedPossibleValues(new ArrayList<>(alyxConfig.getBots().keySet()))
                 .read("Select a bot to start up:");
@@ -95,6 +92,24 @@ public final class Launcher {
                     alyxConfig.getBots().keySet()));
         }
         return Ok.of(botEntry);
+    }
+
+    /**
+     * Enter setup mode and return the newly created Bot Entry.
+     *
+     * @param configHandler Config handler instance for the config file.
+     * @param textIO TextIO instance for running the setup process.
+     * @return Result of a BotEntry of the newly configured bot if successful, otherwise an error string.
+     */
+    public static Result<BotEntry, String> setup(final ConfigHandler configHandler, final TextIO textIO) {
+        final AlyxSetup alyxSetup = AlyxSetup.builder()
+            .configHandler(configHandler)
+            .defaultDataDir(ConfigHandler.ALYX_DEFAULT_DATA_DIR)
+            .textIO(textIO)
+            .build();
+
+        // run the setup process
+        return alyxSetup.startSetup();
     }
 
     /**

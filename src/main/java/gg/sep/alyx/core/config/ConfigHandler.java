@@ -95,7 +95,7 @@ public class ConfigHandler {
             throw new IOException("Config file path cannot be a root directory.");
         }
         if (!Files.exists(configPath)) {
-            Files.createDirectories(configPath.getParent());
+            Files.createDirectories(parentPath);
             Files.createFile(configPath);
         }
     }
