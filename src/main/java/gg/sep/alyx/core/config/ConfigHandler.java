@@ -91,10 +91,11 @@ public class ConfigHandler {
 
     private void ensureConfigFile() throws IOException {
         final Path parentPath = configPath.getParent();
+        if (parentPath == null) {
+            throw new IOException("Config file path cannot be a root directory.");
+        }
         if (!Files.exists(configPath)) {
-            if (parentPath != null) {
-                Files.createDirectories(parentPath);
-            }
+            Files.createDirectories(configPath.getParent());
             Files.createFile(configPath);
         }
     }

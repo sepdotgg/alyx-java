@@ -1,8 +1,10 @@
 package gg.sep.alyx.core.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -96,5 +98,12 @@ public class ConfigHandlerTest {
         final Optional<AlyxConfig> alyxConfig = configHandler.loadConfig();
         assertTrue(alyxConfig.isPresent());
         assertEquals(expectedMap, alyxConfig.get().getBots());
+    }
+
+    @Test
+    void writeConfig_NoParentDirectory() {
+        final Path rootPath = Path.of("/");
+        final ConfigHandler configHandler = new ConfigHandler(rootPath);
+        assertThrows(IOException.class, () -> configHandler.writeConfig(null));
     }
 }
