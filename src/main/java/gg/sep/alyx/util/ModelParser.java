@@ -7,6 +7,8 @@ import com.google.gson.JsonSyntaxException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
+import gg.sep.alyx.model.AbstractJsonObject;
+
 /**
  * Utility for parsing JSON strings into one of our model classes, and handles JSON exceptions.
  */
@@ -14,7 +16,7 @@ import lombok.extern.log4j.Log4j2;
 @UtilityClass
 public class ModelParser {
 
-    private static final Gson GSON  = new Gson();
+    private static final Gson GSON = AbstractJsonObject.buildGson();
 
     /**
      * Attempts to parse the specified JSON string into the specified model class.
@@ -28,7 +30,7 @@ public class ModelParser {
      */
     public static <T> Optional<T> parseJson(final String json, final Class<T> clazz) {
         try {
-            return Optional.of(GSON.fromJson(json, clazz));
+            return Optional.ofNullable(GSON.fromJson(json, clazz));
         } catch (final JsonSyntaxException e) {
             log.error("Error parsing JSON into models. class={}, error={}", clazz, e);
             return Optional.empty();

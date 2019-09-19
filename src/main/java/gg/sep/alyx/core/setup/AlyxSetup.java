@@ -1,20 +1,19 @@
 package gg.sep.alyx.core.setup;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
-import lombok.experimental.UtilityClass;
+import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 import org.beryx.textio.TextIO;
-import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
 
-import gg.sep.alyx.core.config.AlyxConfig;
-import gg.sep.alyx.core.config.BotEntry;
-import gg.sep.alyx.core.config.ConfigLoader;
+import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.StorageType;
+import gg.sep.alyx.model.config.AlyxConfig;
+import gg.sep.alyx.model.config.BotEntry;
 import gg.sep.alyx.util.result.Err;
 import gg.sep.alyx.util.result.Ok;
 import gg.sep.alyx.util.result.Result;
@@ -22,9 +21,13 @@ import gg.sep.alyx.util.result.Result;
 /**
  * Utility class for executing the initial Alyx configuration setups.
  */
+@Builder
 @Log4j2
-@UtilityClass
 public class AlyxSetup {
+
+    private ConfigHandler configHandler;
+    private Path defaultDataDir;
+    private TextIO textIO;
 
     private static final String HEADER =
         "    ⣶⣶⣶⣶⡆\n" +
@@ -37,133 +40,108 @@ public class AlyxSetup {
         " ⠾⠿⠿⠁⠀⠀⠀⠀⠀⠘⣿⣿⡿⠿⠛\n\n\n";
 
     /**
-     * Starts a new Setup session, returning an {@link Ok} Result if it was successful containing the completed config.
-     *
-     * If it was not successful, returns an {@link Err} containing the error message.
-     * @param configFile The bot's config file.
-     * @return An {@link Ok} containing the completed {@link AlyxConfig} if successful, otherwise an {@link Err}.
+     * Starts the Setup process using the supplied configuration and data directories passed in the constructor.
+     * @return A {@link Result} with the created config {@link BotEntry} record if successful, or a string error
+     *         if failure.
      */
-    public static Result<BotEntry, String> enterSetup(final File configFile) {
-        // check if the config file exists
-        // check if the file is a directory
-        if (configFile.isDirectory()) {
+    public Result<BotEntry, String> startSetup() {
+        if (Files.isDirectory(configHandler.getConfigPath())) {
             return Err.of("The config file must be a file, not a directory.");
         }
-        if (configFile.canRead()) {
-            final Result<?, String> setupNewConfig = setupNewConfig(configFile);
-            if (setupNewConfig.isErr()) {
-                return Err.of(setupNewConfig.unwrapErr());
-            }
+        // check if we should generate a new config file
+        if (Files.exists(configHandler.getConfigPath()) && !Files.isWritable(configHandler.getConfigPath())) {
+            return Err.of("We do not have permission to write to that config file.");
         }
 
-        final Optional<AlyxConfig> loadConfig = ConfigLoader.loadConfig(configFile);
-        final AlyxConfig alyxConfig = loadConfig.orElseThrow(() -> new RuntimeException("Failed to load Alyx config."));
+        try {
+            // write a new file if it doesn't exist
+            if (!Files.exists(configHandler.getConfigPath())) {
+                configHandler.writeConfig(AlyxConfig.empty());
+            }
+            // load the config file back up
+            final AlyxConfig alyxConfig = configHandler.loadConfig().orElseThrow(() ->
+                new IOException("Failed to load the config file: " + configHandler.getConfigPath()));
 
-        final TextIO textIO = TextIoFactory.getTextIO();
-        final TextTerminal terminal = textIO.getTextTerminal();
+            final Result<BotEntry, String> setupSteps = performSetupSteps(alyxConfig);
+            textIO.dispose();
+            if (setupSteps.isErr()) {
+                return setupSteps;
+            }
+            configHandler.updateBotEntry(setupSteps.unwrap());
+            return Ok.of(setupSteps.unwrap());
 
-        welcomeSetup(terminal);
+        } catch (final IOException e) {
+            return Err.of("Error during setup: " + e);
+        }
+    }
 
-        // get a name for the bot, confirm it is not used
-        final String botName = getBotName(textIO);
+    private Result<BotEntry, String> performSetupSteps(final AlyxConfig alyxConfig) {
+        welcomeSetup(textIO.getTextTerminal());
+
+        final String botName = botName();
         if (alyxConfig.getBots().containsKey(botName)) {
-            final boolean confirmed = confirmOverwriteBot(textIO);
-            if (!confirmed) {
-                terminal.println("Exiting setup mode.");
-                terminal.dispose();
-                return Err.of("Could not complete the setup process.");
+            // duplicate bot exists, confirm that we want to overwrite
+            if (!confirmOverwriteBot()) {
+                textIO.getTextTerminal().println("Exiting setup mode.");
+                textIO.getTextTerminal().dispose();
+                return Err.of("Exited setup mode before completion");
             }
         }
-        terminal.println();
 
-        // get a storage engine for the bot
-        final StorageType storageType = getStorageType(textIO);
-        terminal.println();
+        final StorageType storageType = storageType();
+        textIO.getTextTerminal().println();
 
-        // finally, get a config location for the bot's files
-        final File botConfigPath = getBotConfigDir(textIO, ConfigLoader.getBotConfigDir());
-        final boolean configDirConfirmed = confirmBotConfigDir(textIO, botConfigPath);
-        terminal.println();
+        // get the config location
+        final Path configDirPath = configDirPath();
+        final boolean confirmConfigDirPath = confirmConfigDirPath(configDirPath);
+        textIO.getTextTerminal().println();
 
-        if (!configDirConfirmed) {
-            terminal.println("Existing setup mode");
-            terminal.dispose();
-            return Err.of("Could not complete the setup process.");
+        if (!confirmConfigDirPath) {
+            textIO.getTextTerminal().println("Exiting setup mode.");
+            textIO.getTextTerminal().dispose();
+            return Err.of("Exited setup mode before completion");
         }
 
         final BotEntry botEntry = BotEntry.builder()
             .botName(botName)
             .storageType(storageType)
-            .configDir(botConfigPath)
+            .dataDir(configDirPath)
             .build();
-
-        ConfigLoader.updateBotConfig(botEntry, configFile);
-        alyxConfig.getBots().put(botName, botEntry);
-        terminal.dispose();
         return Ok.of(botEntry);
     }
 
-    /**
-     * Writes (overwrites) the config file to an empty config.
-     */
-    private static Result<?, String> setupNewConfig(final File configFile) {
-        return ConfigLoader.writeConfig(AlyxConfig.EMPTY, configFile);
-    }
-
-    private static void welcomeSetup(final TextTerminal terminal) {
+    private void welcomeSetup(final TextTerminal terminal) {
         terminal.print(HEADER);
-
         terminal.print(
             "SETUP MODE\n" +
-            "-----------------\n" +
-            "This setup will walk you through the process of setting up a new bot configuration.\n\n"
+                "-----------------\n" +
+                "This setup will walk you through the process of setting up a new bot configuration.\n\n"
         );
-
     }
 
-    /**
-     * Using the supplied {@code textIO} instance, get the bot's name that is being set up.
-     * @param textIO An existing {@link TextIO} instance.
-     * @return The chosen name for the bot.
-     */
-    private static String getBotName(final TextIO textIO) {
+    private String botName() {
         final String stepText =
             "Step 1 - Choosing name for your bot\n" +
-            "--------------------------------------------\n";
+                "--------------------------------------------\n";
         final String descText = "This name is what will identify your bot in the config.";
 
         final String botName = textIO
             .newStringInputReader()
-            .withValueChecker((enteredText, n) -> {
-                if (enteredText.trim().contains(" ")) {
-                    return List.of("The bot name cannot contain spaces.");
-                }
-                return null;
-            })
+            .withValueChecker(AlyxSetup::botNameChecker)
             .read(List.of(stepText, descText, "Name:"));
         return botName.trim();
     }
 
-    /**
-     * Asks the user to confirm overwriting a bot configuration, if one one they chose already exists.
-     * @param textIO An existing {@link TextIO} instance.
-     * @return Boolean indicating whether the user has confirmed the overwrite.
-     */
-    private static boolean confirmOverwriteBot(final TextIO textIO) {
+    private boolean confirmOverwriteBot() {
         return textIO
             .newBooleanInputReader()
             .read("\n[WARNING] A bot with that name already exists. Confirm overwrite?");
     }
 
-    /**
-     * Using the supplied {@code textIO} instance, get the bot's storage type to use.
-     * @param textIO An existing {@link TextIO} instance.
-     * @return The selected storage type for the bot.
-     */
-    private static StorageType getStorageType(final TextIO textIO) {
+    private StorageType storageType() {
         final String stepText =
             "Step 2 - Choosing a Storage Engine\n" +
-            "--------------------------------------------\n";
+                "--------------------------------------------\n";
         final String descText = "Select your preferred engine for storing the bot's config and settings. " +
             "If you're not sure, leave this as 'json'";
 
@@ -172,69 +150,69 @@ public class AlyxSetup {
             .read(List.of(stepText, descText));
     }
 
-    /**
-     * Using the supplied {@code textIO} instance, get the bot's config storage directory.
-     * @param textIO An existing {@link TextIO} instance.
-     * @param defaultPath The default path to store the bot's config.
-     * @return The user selected path to store the bot's config.
-     */
-    private static File getBotConfigDir(final TextIO textIO, final File defaultPath) {
+    private Path configDirPath() {
         final String stepText =
             "Step 3 - Choosing a Config Storage Directory\n" +
-            "--------------------------------------------\n";
+                "--------------------------------------------\n";
         final String descText = "Enter a directory to use for storing the bot's configuration files and settings." +
             "We've selected a default location based on your operating system, but you can change this.\n";
 
         final String path = textIO
             .newStringInputReader()
-            .withDefaultValue(defaultPath.getAbsolutePath())
-            .withValueChecker(AlyxSetup::checkConfigFilePath)
+            .withDefaultValue(defaultDataDir.toAbsolutePath().toString())
+            .withValueChecker(AlyxSetup::configDataPathValueChecker)
             .read(List.of(stepText, descText, "Default: "));
-        return new File(path);
+        return Path.of(path);
     }
 
     /**
      * Asks the user to confirm the config directory path that was chosen.
-     * @param textIO An existing {@link TextIO} instance.
      * @param path The user selected path to store the bot's config.
      * @return Boolean indicating whether the user has confirmed the config directory.
      */
-    private static boolean confirmBotConfigDir(final TextIO textIO, final File path) {
+    private boolean confirmConfigDirPath(final Path path) {
         return textIO
             .newBooleanInputReader()
-            .read(String.format("%n%nYou have chosen your bot's data directory: %s%n Confirm?", path));
+            .read(String.format("%n%nYou have chosen your bot's data directory: %s%n Confirm?",
+                path.toAbsolutePath().toString()));
     }
 
     /**
-     * Method which is passed as a {@link org.beryx.textio.InputReader.ValueChecker} to verify the config directory.
-     *
-     * Confirms whether the directory exists, is a directory, is an absolute path, and that we can write to it.
-     * @param path Path to the bot's config directory.
-     * @param inputName Name of the input option from {@link org.beryx.textio.InputReader}, but not used here.
-     * @return List of strings to print to the user if an error, or {@code null} if success.
+     * IMPORTANT: Exists for testing purposes only.
+     * @param enteredText Text entered by the user.
+     * @param itemName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
      */
-    private static List<String> checkConfigFilePath(final String path, final String inputName) {
-        final File file = new File(path);
+    public static List<String> botNameChecker(final String enteredText, final String itemName) {
+        if (enteredText.trim().contains(" ") || enteredText.trim().length() < 1) {
+            return List.of("The bot name cannot contain spaces and must be at least 1 character long.");
+        }
+        return null;
+    }
 
-        final List<String> errors = new ArrayList<>();
-
-        // make sure it's absolute
-        if (!file.isAbsolute()) {
-            errors.add(String.format("%d: The path must be an absolute directory.", errors.size() + 1));
+    /**
+     * IMPORTANT: Exists for testing purposes only.
+     * @param path Path value of the config data dir path entered by the user.
+     * @param inputName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
+     */
+    public static List<String> configDataPathValueChecker(final String path, final String inputName) {
+        final Path configPath = Path.of(path);
+        if (!configPath.isAbsolute()) {
+            return List.of("The path must be an absolute directory");
+        }
+        if (!Files.exists(configPath)) {
+            try {
+                Files.createDirectories(configPath);
+            } catch (final IOException e) {
+                return List.of("Failed to create that directory. Please check permissions.");
+            }
+        } else if (!Files.isDirectory(configPath)) {
+            return List.of("The supplied path must be a directory");
+        } else if (!Files.isWritable(configPath)) {
+            return List.of("We do not have permission to write to that directory.");
         }
 
-        if (!file.exists() && !file.mkdirs()) {
-            errors.add(String.format("%d: There was a problem while attempting to " +
-                "create that directory. Please check permissions.", errors.size() + 1));
-        } else if (file.exists() && !file.isDirectory()) {
-            errors.add(String.format("%d: The supplied path must be a directory.", errors.size() + 1));
-        } else if (file.exists() && !file.canWrite()) {
-            errors.add(String.format("%d: We do not have permission to write to that directory.", errors.size() + 1));
-        }
-
-        if (errors.size() > 0) {
-            return errors;
-        }
         return null;
     }
 }

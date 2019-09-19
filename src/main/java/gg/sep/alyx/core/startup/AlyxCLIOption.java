@@ -23,7 +23,7 @@ public enum AlyxCLIOption {
      * Adds the option to the list of Apache CLI options.
      * @param options Apache CLI Command Line Options.
      */
-    public void addToOptions(final Options options) {
+    private void addToOptions(final Options options) {
         options.addOption(opt, longOpt, hasArg, description);
     }
 
