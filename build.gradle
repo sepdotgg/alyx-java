@@ -14,6 +14,7 @@ plugins {
     id 'com.github.spotbugs' version '2.0.0'
     id 'jacoco'
 
+    // plugin that checks for dependency updates
     id "com.github.ben-manes.versions" version "0.25.0"
 }
 
@@ -28,6 +29,8 @@ ext {
     lombokVersion = '1.18.+'
     checkstyleVersion = '8.22'
     spotbugsVersion = '3.1.12'
+    log4jVersion = '2.12.+'
+    junitVersion = '5.5.2'
 }
 
 repositories {
@@ -44,37 +47,34 @@ configurations {
 
 dependencies {
     // alyx core dependencies
-    implementation 'net.dv8tion:JDA:4.+' // JDA for Discord API
-    implementation 'org.beryx:text-io:3.3.0' // for interactive setup
-    implementation 'net.harawata:appdirs:1.0.+' // for platform independent application dirs
-
-
+    implementation "net.dv8tion:JDA:4.+" // JDA for Discord API
+    implementation "org.beryx:text-io:3.3.0" // for interactive setup
+    implementation "net.harawata:appdirs:1.0.+" // for platform independent application dirs
+    
     // External Utilities and Libraries
-    implementation 'commons-cli:commons-cli:1.4'
-    implementation 'com.google.guava:guava:28.1-jre'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'org.apache.commons:commons-collections4:4.+'
-    implementation 'org.apache.commons:commons-lang3:3.+'
-    implementation 'org.apache.logging.log4j:log4j-api:2.12.+'
-    implementation 'org.apache.logging.log4j:log4j-core:2.12.+'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.+'
+    implementation "commons-cli:commons-cli:1.4"
+    implementation "com.google.guava:guava:28.1-jre"
+    implementation "com.google.code.gson:gson:2.8.5"
+    implementation "org.apache.commons:commons-collections4:4.+"
+    implementation "org.apache.commons:commons-lang3:3.+"
+    implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
     // build dependencies
-    sepBuildConfig 'com.github.Seputaes:sep-java-build-config:0.2.0'
+    sepBuildConfig "com.github.Seputaes:sep-java-build-config:0.2.0"
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     compileOnly "com.github.spotbugs:spotbugs-annotations:$spotbugsVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
     // Use JUnit Jupiter API for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.5.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
     // Use Mockito for Testing
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.0.0'
+    testCompile "org.mockito:mockito-core:3.0.0"
 
-
-    // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
 }
 
 sourceSets {
