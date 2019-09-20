@@ -13,6 +13,8 @@ plugins {
     id 'checkstyle'
     id 'com.github.spotbugs' version '2.0.0'
     id 'jacoco'
+
+    id "com.github.ben-manes.versions" version "0.25.0"
 }
 
 group 'gg.sep'
@@ -42,20 +44,20 @@ configurations {
 
 dependencies {
     // alyx core dependencies
-    implementation 'net.dv8tion:JDA:3.+' // JDA for Discord API
+    implementation 'net.dv8tion:JDA:4.+' // JDA for Discord API
     implementation 'org.beryx:text-io:3.3.0' // for interactive setup
     implementation 'net.harawata:appdirs:1.0.+' // for platform independent application dirs
 
 
     // External Utilities and Libraries
     implementation 'commons-cli:commons-cli:1.4'
-    implementation 'com.google.guava:guava:27.1-jre'
+    implementation 'com.google.guava:guava:28.1-jre'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.apache.commons:commons-collections4:4.+'
     implementation 'org.apache.commons:commons-lang3:3.+'
-    implementation 'org.apache.logging.log4j:log4j-api:2.11.+'
-    implementation 'org.apache.logging.log4j:log4j-core:2.11.+'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.+'
+    implementation 'org.apache.logging.log4j:log4j-api:2.12.+'
+    implementation 'org.apache.logging.log4j:log4j-core:2.12.+'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.+'
 
     // build dependencies
     sepBuildConfig 'com.github.Seputaes:sep-java-build-config:0.2.0'
@@ -72,7 +74,7 @@ dependencies {
 
 
     // Use JUnit Jupiter Engine for testing.
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
 }
 
 sourceSets {
