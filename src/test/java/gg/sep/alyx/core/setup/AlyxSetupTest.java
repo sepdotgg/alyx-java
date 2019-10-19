@@ -24,7 +24,7 @@ import gg.sep.alyx.Launcher;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.StorageType;
 import gg.sep.alyx.model.config.BotEntry;
-import gg.sep.alyx.util.result.Result;
+import gg.sep.result.Result;
 
 /**
  * Tests for {@link AlyxSetup}.

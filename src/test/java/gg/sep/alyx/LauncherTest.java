@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.model.config.AlyxConfig;
 import gg.sep.alyx.model.config.BotEntry;
-import gg.sep.alyx.util.result.Result;
+import gg.sep.result.Result;
 
 /**
  * Main test class for {@link Launcher}.

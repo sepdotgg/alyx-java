@@ -14,9 +14,9 @@ import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.StorageType;
 import gg.sep.alyx.model.config.AlyxConfig;
 import gg.sep.alyx.model.config.BotEntry;
-import gg.sep.alyx.util.result.Err;
-import gg.sep.alyx.util.result.Ok;
-import gg.sep.alyx.util.result.Result;
+import gg.sep.result.Err;
+import gg.sep.result.Ok;
+import gg.sep.result.Result;
 
 /**
  * Utility class for executing the initial Alyx configuration setups.
