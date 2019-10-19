@@ -50,7 +50,7 @@ dependencies {
     implementation "net.dv8tion:JDA:4.+" // JDA for Discord API
     implementation "org.beryx:text-io:3.3.0" // for interactive setup
     implementation "net.harawata:appdirs:1.0.+" // for platform independent application dirs
-    implementation "com.github.Seputaes:result:1.0.0"
+    implementation "com.github.Seputaes:result:1.1.0"
 
     // External Utilities and Libraries
     implementation "commons-cli:commons-cli:1.4"
