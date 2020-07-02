@@ -1,6 +1,11 @@
 package gg.sep.alyx.core.setup;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -8,8 +13,6 @@ import javax.security.auth.login.LoginException;
 
 import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextTerminal;
@@ -79,6 +82,8 @@ public class AlyxSetup {
 
         } catch (final IOException e) {
             return Err.of("Error during setup: " + e);
+        } finally {
+            textIO.dispose();
         }
     }
 
@@ -275,10 +280,19 @@ public class AlyxSetup {
         }
 
         try {
-            final JDA jda = JDABuilder.createLight(discordToken).build();
-            jda.awaitReady();
-            jda.shutdownNow();
-        } catch (final LoginException | InterruptedException e) {
+            final HttpClient client = HttpClient.newHttpClient();
+            final HttpRequest request = HttpRequest.newBuilder()
+                .header("Authorization", "Bot " + discordToken)
+                .GET()
+                .uri(new URI("https://discord.com/api/gateway/bot"))
+                .build();
+
+            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            final int codeCheck = response.statusCode() - 200;
+            if (codeCheck < 0 || codeCheck > 100) {
+                throw new LoginException();
+            }
+        } catch (final URISyntaxException | InterruptedException | LoginException | IOException e) {
             return List.of("Invalid token. Unable to connect to Discord.");
         }
         return null;
