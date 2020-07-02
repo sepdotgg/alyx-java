@@ -13,15 +13,18 @@ import gg.sep.alyx.Alyx;
 
 /**
  * Plugin for Alyx.
- * TODO: Serial
  */
 public abstract class AlyxPlugin {
+    private final long serial;
     protected final Alyx alyx;
-    @Getter protected final String name;
+    @Getter private final String identifier;
+    @Getter private final String name;
 
-    protected AlyxPlugin(final String name, final Alyx alyx) {
+    protected AlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this.name = name;
         this.alyx = alyx;
+        this.serial = serial;
+        this.identifier = String.format("%s.%s", serial, name);
     }
 
     /**
@@ -52,22 +55,22 @@ public abstract class AlyxPlugin {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(AlyxPlugin.class, this.name);
+        return Objects.hashCode(this.identifier);
     }
 
     /**
      * Checks whether this plugin is the same as another plugin.
      *
-     * // TODO: Add serials to handle plugin name conflicts.
      *
-     * @param plugin The other plugin.
+     * @param other The other plugin.
      * @return Returns {@code true} if it is the same plugin.
      */
     @Override
-    public boolean equals(final Object plugin) {
-        if (!(plugin instanceof AlyxPlugin)) {
+    public boolean equals(final Object other) {
+        if (!(other instanceof AlyxPlugin)) {
             return false;
         }
-        return this.name.equals(((AlyxPlugin) plugin).getName());
+        final AlyxPlugin plugin = (AlyxPlugin) other;
+        return this.identifier.equals(plugin.identifier);
     }
 }

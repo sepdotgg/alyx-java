@@ -16,7 +16,7 @@ public class TestCommandsPlugin extends AlyxPlugin {
      * @param alyx Instance of Alyx.
      */
     public TestCommandsPlugin(final Alyx alyx) {
-        super(NAME, alyx);
+        super(NAME, 239934148704337930L, alyx);
     }
 
     /**
