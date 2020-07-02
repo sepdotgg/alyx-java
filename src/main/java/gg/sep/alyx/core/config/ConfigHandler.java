@@ -12,11 +12,12 @@ import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 
 import gg.sep.alyx.model.config.AlyxConfig;
+import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
 import gg.sep.alyx.util.ModelParser;
 
 /**
- * {@link ConfigHandler} is responsible for creating, updating, and reading an Alyx config file.
+ * {@link ConfigHandler} is responsible for creating, updating, and reading an Alyx config files.
  *
  * The config file used is specified by the user as a CLI argument when launching Alyx,
  * or a default "app dirs" file is created and used based on the user's operating system.
@@ -44,9 +45,26 @@ public class ConfigHandler {
      * Attempts to load and parse the config file into an {@link AlyxConfig}.
      * @return Returns an {@link Optional} of the {@link AlyxConfig} if successful, otherwise an empty Optional.
      */
-    public Optional<AlyxConfig> loadConfig() {
+    public Optional<AlyxConfig> loadAlyxConfig() {
         try {
-            return ModelParser.parseJson(readConfig(), AlyxConfig.class);
+            return ModelParser.parseJson(readConfig(configPath), AlyxConfig.class);
+        } catch (final IOException e) {
+            log.error(e);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Attempts to load and parse the config file into an {@link BotConfig}.
+     *
+     * @param botEntry The BotEntry for which to load the bot's config.
+     * @return Returns an {@link Optional} of the {@link BotConfig} if successful, otherwise an empty Optional.
+     */
+    public Optional<BotConfig> loadBotConfig(final BotEntry botEntry) {
+        try {
+            final Path botConfigPath = botEntry.getDataDir()
+                .resolve(String.format("%s_config.json", botEntry.getBotName()));
+            return ModelParser.parseJson(readConfig(botConfigPath), BotConfig.class);
         } catch (final IOException e) {
             log.error(e);
         }
@@ -59,14 +77,24 @@ public class ConfigHandler {
      * @throws IOException Exception thrown if writing to the config file failed.
      */
     public void updateBotEntry(final BotEntry botEntry) throws IOException {
-        final Optional<AlyxConfig> currentConfig = loadConfig();
+        final Optional<AlyxConfig> currentConfig = loadAlyxConfig();
 
         AlyxConfig outputConfig = currentConfig.orElse(null);
         if (outputConfig == null) {
-            outputConfig = generateBlankConfig();
+            outputConfig = generateBlankAlyxConfig();
         }
         outputConfig.getBots().put(botEntry.getBotName(), botEntry);
         writeConfig(outputConfig);
+    }
+
+    /**
+     * Updates a bot's config file, overwriting any existing bot config.
+     * @param botEntry Bot Entry for which to update the config.
+     * @param botConfig The Bot Config to write.
+     * @throws IOException Exception thrown if writing to the config file failed.
+     */
+    public void updateBotConfig(final BotEntry botEntry, final BotConfig botConfig) throws IOException {
+        writeBotConfig(botEntry, botConfig);
     }
 
     /**
@@ -75,22 +103,35 @@ public class ConfigHandler {
      * @throws IOException Exception thrown if writing to the config file failed.
      */
     public void writeConfig(final AlyxConfig alyxConfig) throws IOException {
-        ensureConfigFile();
+        ensureConfigFile(configPath);
         Files.writeString(configPath, alyxConfig.toPrettyJson());
     }
 
-    private String readConfig() throws IOException {
-        return Files.readString(configPath);
+    /**
+     * Write the {@link BotConfig} to the config file, overwriting any existing configuration.
+     * @param botEntry The BotEntry for the bot's config.
+     * @param botConfig BotConfig to write to disk.
+     * @throws IOException Exception thrown if writing to the config file failed.
+     */
+    public void writeBotConfig(final BotEntry botEntry, final BotConfig botConfig) throws IOException {
+        final String fileName = String.format("%s_config.json", botEntry.getBotName());
+        final Path botConfigPath = botEntry.getDataDir().resolve(fileName);
+        ensureConfigFile(botConfigPath);
+        Files.writeString(botConfigPath, botConfig.toPrettyJson());
     }
 
-    private AlyxConfig generateBlankConfig() throws IOException {
+    private String readConfig(final Path filePath) throws IOException {
+        return Files.readString(filePath);
+    }
+
+    private AlyxConfig generateBlankAlyxConfig() throws IOException {
         final AlyxConfig blankConfig = AlyxConfig.empty();
         writeConfig(blankConfig);
         return blankConfig;
     }
 
-    private void ensureConfigFile() throws IOException {
-        final Path parentPath = configPath.getParent();
+    private void ensureConfigFile(final Path filePath) throws IOException {
+        final Path parentPath = filePath.getParent();
         if (parentPath == null) {
             throw new IOException("Config file path cannot be a root directory.");
         }

@@ -30,7 +30,7 @@ public class ConfigHandlerTest {
     @Test
     void loadConfig_NoFile(@TempDir final Path tempDir) {
         final ConfigHandler configHandler = tempDirConfigHandler(tempDir);
-        assertEquals(Optional.empty(), configHandler.loadConfig());
+        assertEquals(Optional.empty(), configHandler.loadAlyxConfig());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ConfigHandlerTest {
         configHandler.updateBotEntry(expectedBotEntry);
 
         // load the config back up
-        final Optional<AlyxConfig> alyxConfig = configHandler.loadConfig();
+        final Optional<AlyxConfig> alyxConfig = configHandler.loadAlyxConfig();
         assertTrue(alyxConfig.isPresent());
         assertEquals(Map.of("foo", expectedBotEntry), alyxConfig.get().getBots());
     }
@@ -72,7 +72,7 @@ public class ConfigHandlerTest {
         configHandler.updateBotEntry(baseBotEntry);
         configHandler.updateBotEntry(newBotEntry);
 
-        final Optional<AlyxConfig> alyxConfig = configHandler.loadConfig();
+        final Optional<AlyxConfig> alyxConfig = configHandler.loadAlyxConfig();
         assertTrue(alyxConfig.isPresent());
         assertEquals(expectedMap, alyxConfig.get().getBots());
     }
@@ -95,7 +95,7 @@ public class ConfigHandlerTest {
         configHandler.updateBotEntry(baseBotEntry);
         configHandler.updateBotEntry(newBotEntry);
 
-        final Optional<AlyxConfig> alyxConfig = configHandler.loadConfig();
+        final Optional<AlyxConfig> alyxConfig = configHandler.loadAlyxConfig();
         assertTrue(alyxConfig.isPresent());
         assertEquals(expectedMap, alyxConfig.get().getBots());
     }

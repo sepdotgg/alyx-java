@@ -37,7 +37,7 @@ public class LauncherTest {
     @Test
     void loadExisting_InvalidConfigFile() {
         final ConfigHandler configHandler = Mockito.mock(ConfigHandler.class);
-        Mockito.when(configHandler.loadConfig()).thenReturn(Optional.empty());
+        Mockito.when(configHandler.loadAlyxConfig()).thenReturn(Optional.empty());
         assertTrue(Launcher.loadExisting(null, configHandler, null).isErr());
     }
 

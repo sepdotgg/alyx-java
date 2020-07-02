@@ -4,15 +4,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import javax.security.auth.login.LoginException;
 
 import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextTerminal;
 
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.StorageType;
 import gg.sep.alyx.model.config.AlyxConfig;
+import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
 import gg.sep.result.Err;
 import gg.sep.result.Ok;
@@ -28,6 +33,8 @@ public class AlyxSetup {
     private ConfigHandler configHandler;
     private Path defaultDataDir;
     private TextIO textIO;
+
+    private static final Character COMMAND_PREFIX_DEFAULT = '!';
 
     private static final String HEADER =
         "    ⣶⣶⣶⣶⡆\n" +
@@ -59,7 +66,7 @@ public class AlyxSetup {
                 configHandler.writeConfig(AlyxConfig.empty());
             }
             // load the config file back up
-            final AlyxConfig alyxConfig = configHandler.loadConfig().orElseThrow(() ->
+            final AlyxConfig alyxConfig = configHandler.loadAlyxConfig().orElseThrow(() ->
                 new IOException("Failed to load the config file: " + configHandler.getConfigPath()));
 
             final Result<BotEntry, String> setupSteps = performSetupSteps(alyxConfig);
@@ -87,6 +94,7 @@ public class AlyxSetup {
                 return Err.of("Exited setup mode before completion");
             }
         }
+        final char botCmdPrefix = botPrefix();
 
         final StorageType storageType = storageType();
         textIO.getTextTerminal().println();
@@ -102,11 +110,23 @@ public class AlyxSetup {
             return Err.of("Exited setup mode before completion");
         }
 
+        final String discordToken = discordToken();
         final BotEntry botEntry = BotEntry.builder()
             .botName(botName)
             .storageType(storageType)
             .dataDir(configDirPath)
             .build();
+        // write the default bot config
+        final BotConfig defaultBotConfig = BotConfig.builder()
+            .botName(botName)
+            .commandPrefix(botCmdPrefix)
+            .discordToken(discordToken)
+            .build();
+        try {
+            configHandler.updateBotConfig(botEntry, defaultBotConfig);
+        } catch (final IOException e) {
+            return Err.of(e.getMessage());
+        }
         return Ok.of(botEntry);
     }
 
@@ -138,9 +158,20 @@ public class AlyxSetup {
             .read("\n[WARNING] A bot with that name already exists. Confirm overwrite?");
     }
 
+    private char botPrefix() {
+        final String stepText =
+            "Step 2 - Choose a command prefix for your bot\n" +
+                "--------------------------------------------\n";
+        final String descText = "This is the character that will be used to prefix bot commands (eg. enter ! for !ping)";
+        return textIO
+            .newCharInputReader()
+            .withDefaultValue(COMMAND_PREFIX_DEFAULT)
+            .read(List.of(stepText, descText, "Prefix:"));
+    }
+
     private StorageType storageType() {
         final String stepText =
-            "Step 2 - Choosing a Storage Engine\n" +
+            "Step 3 - Choosing a Storage Engine\n" +
                 "--------------------------------------------\n";
         final String descText = "Select your preferred engine for storing the bot's config and settings. " +
             "If you're not sure, leave this as 'json'";
@@ -152,7 +183,7 @@ public class AlyxSetup {
 
     private Path configDirPath() {
         final String stepText =
-            "Step 3 - Choosing a Config Storage Directory\n" +
+            "Step 4 - Choosing a Config Storage Directory\n" +
                 "--------------------------------------------\n";
         final String descText = "Enter a directory to use for storing the bot's configuration files and settings." +
             "We've selected a default location based on your operating system, but you can change this.\n";
@@ -163,6 +194,20 @@ public class AlyxSetup {
             .withValueChecker(AlyxSetup::configDataPathValueChecker)
             .read(List.of(stepText, descText, "Default: "));
         return Path.of(path);
+    }
+
+    private String discordToken() {
+        final String stepText =
+            "Step 5 - Enter the bot's Discord token\n" +
+                "--------------------------------------------\n";
+        final String descText = "Enter the Discord token that the bot will use to authenticate with Discord.\n";
+
+        return textIO
+            .newStringInputReader()
+            .withInputMasking(true)
+            .withInputTrimming(true)
+            .withValueChecker(AlyxSetup::discordTokenValueChecker)
+            .read(List.of(stepText, descText, "Token: "));
     }
 
     /**
@@ -191,12 +236,13 @@ public class AlyxSetup {
     }
 
     /**
-     * IMPORTANT: Exists for testing purposes only.
+     * Tests whether the config data path is valid.
+     *
      * @param path Path value of the config data dir path entered by the user.
      * @param inputName Name of the item selected. Not used.
      * @return A list of responses in the case of an error, or null if the check passed.
      */
-    public static List<String> configDataPathValueChecker(final String path, final String inputName) {
+    private static List<String> configDataPathValueChecker(final String path, final String inputName) {
         final Path configPath = Path.of(path);
         if (!configPath.isAbsolute()) {
             return List.of("The path must be an absolute directory");
@@ -213,6 +259,28 @@ public class AlyxSetup {
             return List.of("We do not have permission to write to that directory.");
         }
 
+        return null;
+    }
+
+    /**
+     * Tests whether the Discord token is valid.
+     *
+     * @param discordToken Discord token provided by the user.
+     * @param inputName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
+     */
+    private static List<String> discordTokenValueChecker(final String discordToken, final String inputName) {
+        if (StringUtils.isAllBlank(discordToken)) {
+            return List.of("Invalid token. Received a blank token.");
+        }
+
+        try {
+            final JDA jda = JDABuilder.createLight(discordToken).build();
+            jda.awaitReady();
+            jda.shutdownNow();
+        } catch (final LoginException | InterruptedException e) {
+            return List.of("Invalid token. Unable to connect to Discord.");
+        }
         return null;
     }
 }

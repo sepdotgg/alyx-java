@@ -32,8 +32,9 @@ public final class Launcher {
      *
      * @throws ParseException Exception thrown if parsing the CLI arguments failed.
      * @param args Command line arguments passed to the application.
+     * @throws Exception Exception thrown during launch of the program.
      */
-    public static void main(final String[] args) throws ParseException {
+    public static void main(final String[] args) throws Exception {
         // parse the CLI arguments into our Startup arguments
         final CommandLine commandLine = AlyxCommandLineParser.parseArgs(args);
         final AlyxStartupArguments arguments = AlyxCommandLineParser.buildArguments(commandLine);
@@ -52,7 +53,7 @@ public final class Launcher {
             errorExit(botEntry.unwrapErr());
         }
 
-        System.out.println(botEntry.unwrap());
+        Alyx.launchBot(botEntry.unwrap());
     }
 
     /**
@@ -65,7 +66,7 @@ public final class Launcher {
     public static Result<BotEntry, String> loadExisting(final String botName, final ConfigHandler configHandler,
                                                         final TextIO textIO) {
         // try to load the existing configuration file, or return an error if unable to do so
-        final Optional<AlyxConfig> loadedConfig = configHandler.loadConfig();
+        final Optional<AlyxConfig> loadedConfig = configHandler.loadAlyxConfig();
         if (loadedConfig.isEmpty()) {
             return Err.of("Unable to find valid configuration at: " + configHandler.getConfigPath());
         }

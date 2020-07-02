@@ -11,11 +11,11 @@ plugins {
     id 'java'
     id 'application'
     id 'checkstyle'
-    id 'com.github.spotbugs' version '2.0.0'
+    id "com.github.spotbugs" version "4.4.4"
     id 'jacoco'
 
     // plugin that checks for dependency updates
-    id "com.github.ben-manes.versions" version "0.25.0"
+    id "com.github.ben-manes.versions" version "0.28.0"
 }
 
 group 'gg.sep'
@@ -27,10 +27,10 @@ targetCompatibility = 11.0
 // variable definitions
 ext {
     lombokVersion = '1.18.+'
-    checkstyleVersion = '8.22'
-    spotbugsVersion = '3.1.12'
-    log4jVersion = '2.12.+'
-    junitVersion = '5.5.2'
+    checkstyleVersion = '8.26'
+    spotbugsVersion = '4.0.6'
+    log4jVersion = '2.13.+'
+    junitVersion = '5.6.+'
 }
 
 repositories {
@@ -49,13 +49,14 @@ dependencies {
     // alyx core dependencies
     implementation "net.dv8tion:JDA:4.+" // JDA for Discord API
     implementation "org.beryx:text-io:3.3.0" // for interactive setup
-    implementation "net.harawata:appdirs:1.0.+" // for platform independent application dirs
+    implementation "net.harawata:appdirs:1.1.+" // for platform independent application dirs
     implementation "com.github.Seputaes:result:1.1.1"
+    implementation "org.pf4j:pf4j:3.3.+"
 
     // External Utilities and Libraries
     implementation "commons-cli:commons-cli:1.4"
     implementation "com.google.guava:guava:28.1-jre"
-    implementation "com.google.code.gson:gson:2.8.5"
+    implementation "com.google.code.gson:gson:2.8.+"
     implementation "org.apache.commons:commons-collections4:4.+"
     implementation "org.apache.commons:commons-lang3:3.+"
     implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
@@ -63,7 +64,7 @@ dependencies {
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
     // build dependencies
-    sepBuildConfig "com.github.Seputaes:sep-java-build-config:0.2.0"
+    sepBuildConfig "com.github.Seputaes:sep-java-build-config:0.3.0"
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     compileOnly "com.github.spotbugs:spotbugs-annotations:$spotbugsVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
@@ -74,7 +75,7 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
     // Use Mockito for Testing
-    testCompile "org.mockito:mockito-core:3.0.0"
+    testCompile "org.mockito:mockito-core:3.3.+"
 
 }
 
@@ -104,13 +105,24 @@ checkstyleMain.dependsOn extractFile
 checkstyleTest.dependsOn extractFile
 
 spotbugs {
-    ignoreFailures false
-    toolVersion spotbugsVersion
+    toolVersion = '4.0.6'
 }
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
-    reports.xml.enabled = false
-    reports.html.enabled = true
+def spotbugsReports = {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+spotbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+spotbugsTest {
+    spotbugsReports
 }
 
 jacocoTestReport {
@@ -129,8 +141,8 @@ jacocoTestCoverageVerification {
         }
     }
 }
-jacocoTestReport.dependsOn test
 check.dependsOn jacocoTestCoverageVerification
+
 
 // unchecked and deprecation should produce warnings
 compileJava {
