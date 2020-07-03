@@ -3,10 +3,11 @@ package gg.sep.alyx.core.commands;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -26,8 +27,8 @@ import gg.sep.alyx.util.Strings;
 public final class AlyxCommand {
     private final AlyxPlugin plugin;
 
-    @Setter private Permission[] requiredPermissions;
-    @Setter private String[] requiredRoles;
+    @Setter private Collection<Permission> requiredPermissions;
+    @Setter private Collection<String> requiredRoles;
 
     private final String name;
     private final List<List<String>> commandChain;
@@ -46,14 +47,8 @@ public final class AlyxCommand {
      */
     public AlyxCommand(final AlyxPlugin plugin, final String name, final List<List<String>> commandChain,
                        final List<ParameterParser<?>> parsers, final Method method) {
-        this.plugin = plugin;
-        this.name = name;
-        this.commandChain = commandChain;
-        this.parsers = parsers;
-        this.method = method;
 
-        this.requiredPermissions = new Permission[]{};
-        this.requiredRoles = new String[]{};
+        this(plugin, Collections.emptyList(), Collections.emptyList(), name, commandChain, parsers, method);
     }
 
     /**
@@ -168,7 +163,7 @@ public final class AlyxCommand {
     private boolean canUseCommand(final MessageReceivedEvent event) {
 
         // if there's no required roles or permissions, return true
-        if (requiredRoles.length == 0 && requiredPermissions.length == 0) {
+        if (requiredRoles.size() == 0 && requiredPermissions.size() == 0) {
             return true;
         }
 
@@ -186,7 +181,7 @@ public final class AlyxCommand {
             final List<String> userRoles = event.getMember().getRoles().stream().map(Role::getName)
                 .collect(Collectors.toList());
 
-            final boolean hasRole = Stream.of(requiredRoles).anyMatch(userRoles::contains);
+            final boolean hasRole = requiredRoles.stream().anyMatch(userRoles::contains);
             if (hasRole) {
                 return true;
             }

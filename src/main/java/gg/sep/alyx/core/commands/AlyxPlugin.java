@@ -103,8 +103,15 @@ public abstract class AlyxPlugin {
         final String[] requiredRoles = lastCommand.roles();
         final Permission[] requiredPermissions = lastCommand.permissions();
 
-        return new AlyxCommand(this, requiredPermissions, requiredRoles, getCommandName(commands), commandChain,
-            commandParsers, method);
+        return new AlyxCommand(
+            this,
+            Arrays.asList(requiredPermissions),
+            Arrays.asList(requiredRoles),
+            getCommandName(commands),
+            commandChain,
+            commandParsers,
+            method
+        );
     }
 
     /**
