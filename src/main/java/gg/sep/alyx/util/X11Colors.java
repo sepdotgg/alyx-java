@@ -7,9 +7,6 @@ import java.awt.Color;
  * See: https://en.wikipedia.org/wiki/X11_color_names
  */
 public final class X11Colors {
-
-    private X11Colors() { }
-
     public static final Color ALICE_BLUE = new Color(240, 248, 255);
     public static final Color ANTIQUE_WHITE = new Color(250, 235, 215);
     public static final Color AQUA = new Color(0, 255, 255);
@@ -155,4 +152,6 @@ public final class X11Colors {
     public static final Color WHITE_SMOKE = new Color(245, 245, 245);
     public static final Color YELLOW = new Color(255, 255, 0);
     public static final Color YELLOW_GREEN = new Color(154, 205, 50);
+
+    private X11Colors() { }
 }
