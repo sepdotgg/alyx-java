@@ -5,8 +5,14 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.AlyxException;
@@ -16,13 +22,39 @@ import gg.sep.alyx.util.Strings;
 /**
  * Represents a single command which can be executed/invoked by Alyx.
  */
-@RequiredArgsConstructor
+@AllArgsConstructor
 public final class AlyxCommand {
     private final AlyxPlugin plugin;
+
+    @Setter private Permission[] requiredPermissions;
+    @Setter private String[] requiredRoles;
+
     private final String name;
     private final List<List<String>> commandChain;
     private final List<ParameterParser<?>> parsers;
+
     private final Method method;
+
+    /**
+     * Creates a new AlyxCommand.
+     *
+     * @param plugin The plugin where the command is defined.
+     * @param name The name of the command.
+     * @param commandChain The chain of commands needed to execute the command.
+     * @param parsers Parameter parsers used by the command.
+     * @param method The Java method which executes the command.
+     */
+    public AlyxCommand(final AlyxPlugin plugin, final String name, final List<List<String>> commandChain,
+                       final List<ParameterParser<?>> parsers, final Method method) {
+        this.plugin = plugin;
+        this.name = name;
+        this.commandChain = commandChain;
+        this.parsers = parsers;
+        this.method = method;
+
+        this.requiredPermissions = new Permission[]{};
+        this.requiredRoles = new String[]{};
+    }
 
     /**
      * Checks whether this command responds to the supplied command string.
@@ -93,6 +125,11 @@ public final class AlyxCommand {
      * @throws AlyxException Exception thrown if invoking the command failed.
      */
     public void invoke(final MessageReceivedEvent event, final String messageText) throws AlyxException {
+
+        if (!canUseCommand(event)) {
+            return;
+        }
+
         final String[] parameterArgs = extractParameters(messageText);
 
         // We matched the command, but it's missing parameters or has too many parameters
@@ -126,6 +163,50 @@ public final class AlyxCommand {
             // TODO: Leaving this as a Runtime exception during development
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean canUseCommand(final MessageReceivedEvent event) {
+
+        // if there's no required roles or permissions, return true
+        if (requiredRoles.length == 0 && requiredPermissions.length == 0) {
+            return true;
+        }
+
+        final User eventUser = event.getAuthor();
+        final User botOwner = plugin.alyx.getBotOwner();
+
+        // bot owner
+        if (eventUser.equals(botOwner)) {
+            return true;
+        }
+
+        // guild permission checks
+        if (event.isFromGuild() && event.getMember() != null) {
+            // role check
+            final List<String> userRoles = event.getMember().getRoles().stream().map(Role::getName)
+                .collect(Collectors.toList());
+
+            final boolean hasRole = Stream.of(requiredRoles).anyMatch(userRoles::contains);
+            if (hasRole) {
+                return true;
+            }
+
+            // permissions check
+            for (final Permission permission : requiredPermissions) {
+                final boolean hasChannelPermission = permission.isChannel() &&
+                    event.getMember().hasPermission(event.getTextChannel(), permission);
+                if (hasChannelPermission) {
+                    return true;
+                }
+
+                final boolean hasGlobalPermission = event.getMember().hasPermission(permission);
+                if (hasGlobalPermission) {
+                    return true;
+                }
+            }
+        }
+        // TODO: Private Channel permissions
+        return false;
     }
 
     /**

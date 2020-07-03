@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.dv8tion.jda.api.Permission;
+
 /**
  * Annotation used on {@link AlyxPlugin} methods to designate bot command handlers.
  */
@@ -30,9 +32,16 @@ public @interface Command {
     String[] aliases() default {};
 
     /**
-     * The permission level of the user required to execute the command.
-     * TODO: Implement this.
-     * @return The permission level.
+     * Any of the specified {@link Permission} are allowed to execute this command.
+     * @return Array of the permissions associated with this command. If a user has any
+     *         of these permissions, they will be allowed to execute the command.
      */
-    int level() default 0;
+    Permission[] permissions() default {};
+
+    /**
+     * Role names which are allowed to execute this command (for Guild channels).
+     *
+     * @return Array of role names which are allowed to execute this command.
+     */
+    String[] roles() default {};
 }

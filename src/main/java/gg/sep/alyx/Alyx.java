@@ -15,6 +15,7 @@ import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.User;
 
 import gg.sep.alyx.core.commands.AlyxCommand;
 import gg.sep.alyx.core.commands.AlyxPlugin;
@@ -40,13 +41,20 @@ public final class Alyx {
     private final BotConfig botConfig;
     private final JDA jda;
 
-    @Getter private final EventWaiter eventWaiter;
-    @Getter private final String commandPrefix;
-    @Getter private final Set<AlyxPlugin> registeredPlugins = Collections.synchronizedSet(new HashSet<>());
-    @Getter private final Set<AlyxPlugin> loadedPlugins = Collections.synchronizedSet(new HashSet<>());
-    @Getter private final Map<Class<?>, ParameterParser<?>> parameterParsers = new ConcurrentHashMap<>();
-
-    @Getter private final List<AlyxCommand> commandsList = new ArrayList<>();
+    @Getter
+    private final EventWaiter eventWaiter;
+    @Getter
+    private final String commandPrefix;
+    @Getter
+    private final User botOwner;
+    @Getter
+    private final Set<AlyxPlugin> registeredPlugins = Collections.synchronizedSet(new HashSet<>());
+    @Getter
+    private final Set<AlyxPlugin> loadedPlugins = Collections.synchronizedSet(new HashSet<>());
+    @Getter
+    private final Map<Class<?>, ParameterParser<?>> parameterParsers = new ConcurrentHashMap<>();
+    @Getter
+    private final List<AlyxCommand> commandsList = new ArrayList<>();
 
     private Alyx(final BotEntry botEntry) throws LoginException, IOException {
         this.botEntry = botEntry;
@@ -60,6 +68,8 @@ public final class Alyx {
             .setAutoReconnect(true)
             .setActivity(Activity.playing("Type !ping"))
             .build();
+
+        this.botOwner = retrieveBotOwner(this.jda);
     }
 
     /**
@@ -170,6 +180,16 @@ public final class Alyx {
         }
         this.loadedPlugins.remove(plugin);
         this.commandsList.removeAll(plugin.loadCommands());
+    }
+
+    /**
+     * Returns the Bot Owner {@link User} for the given instance of JDA.
+     * @param jda JDA instance.
+     * @return Bot owner user.
+     */
+    private static User retrieveBotOwner(final JDA jda) {
+        return jda.retrieveApplicationInfo().complete()
+            .getOwner();
     }
 
     /**

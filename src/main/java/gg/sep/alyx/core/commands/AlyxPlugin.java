@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.Getter;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
@@ -97,7 +98,13 @@ public abstract class AlyxPlugin {
         final List<List<String>> commandChain = getCommandChain(commands);
         final List<ParameterParser<?>> commandParsers = extractParsers(method);
 
-        return new AlyxCommand(this, getCommandName(commands), commandChain, commandParsers, method);
+        // use the permissions associated with the last command for now: TODO
+        final Command lastCommand = commands[commands.length - 1];
+        final String[] requiredRoles = lastCommand.roles();
+        final Permission[] requiredPermissions = lastCommand.permissions();
+
+        return new AlyxCommand(this, requiredPermissions, requiredRoles, getCommandName(commands), commandChain,
+            commandParsers, method);
     }
 
     /**
