@@ -1,6 +1,7 @@
 package gg.sep.alyx.core.commands;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -8,6 +9,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation used on {@link AlyxPlugin} methods to designate bot command handlers.
  */
+@Repeatable(NestedCommand.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Command {
