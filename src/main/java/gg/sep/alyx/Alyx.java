@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.entities.Activity;
 
 import gg.sep.alyx.core.commands.AlyxCommand;
 import gg.sep.alyx.core.commands.AlyxPlugin;
+import gg.sep.alyx.core.commands.PluginManagerPlugin;
+import gg.sep.alyx.core.commands.TestCommandsPlugin;
 import gg.sep.alyx.core.commands.parsers.DoubleParameterParser;
 import gg.sep.alyx.core.commands.parsers.InstantParameterParser;
 import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
@@ -81,9 +83,14 @@ public final class Alyx {
     public static Alyx launchBot(final BotEntry botEntry) {
         try {
             final Alyx alyx = new Alyx(botEntry);
+            final PluginManagerPlugin pluginManager = new PluginManagerPlugin(alyx);
             alyx.registerDefaultParsers();
+
+            alyx.registerPlugin(pluginManager);
+            alyx.registerPlugin(new TestCommandsPlugin(alyx));
+            alyx.loadPlugin(pluginManager);
             return alyx;
-        } catch (final LoginException | IOException e) {
+        } catch (final AlyxException | LoginException | IOException e) {
             throw new RuntimeException(e);
         }
     }
