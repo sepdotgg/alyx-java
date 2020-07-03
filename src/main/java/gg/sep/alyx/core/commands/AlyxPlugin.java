@@ -107,6 +107,7 @@ public abstract class AlyxPlugin {
             this,
             Arrays.asList(requiredPermissions),
             Arrays.asList(requiredRoles),
+            lastCommand.level(),
             getCommandName(commands),
             commandChain,
             commandParsers,

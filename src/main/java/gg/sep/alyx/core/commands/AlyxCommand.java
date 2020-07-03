@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.core.permissions.PermissionLevel;
 import gg.sep.alyx.util.Strings;
 
 /**
@@ -29,6 +30,7 @@ public final class AlyxCommand {
 
     @Setter private Collection<Permission> requiredPermissions;
     @Setter private Collection<String> requiredRoles;
+    @Setter private PermissionLevel permissionLevel;
 
     private final String name;
     private final List<List<String>> commandChain;
@@ -48,7 +50,8 @@ public final class AlyxCommand {
     public AlyxCommand(final AlyxPlugin plugin, final String name, final List<List<String>> commandChain,
                        final List<ParameterParser<?>> parsers, final Method method) {
 
-        this(plugin, Collections.emptyList(), Collections.emptyList(), name, commandChain, parsers, method);
+        this(plugin, Collections.emptyList(), Collections.emptyList(),
+            PermissionLevel.EVERYONE, name, commandChain, parsers, method);
     }
 
     /**
@@ -163,7 +166,9 @@ public final class AlyxCommand {
     private boolean canUseCommand(final MessageReceivedEvent event) {
 
         // if there's no required roles or permissions, return true
-        if (requiredRoles.size() == 0 && requiredPermissions.size() == 0) {
+        if (requiredRoles.size() == 0
+            && requiredPermissions.size() == 0
+            && permissionLevel == PermissionLevel.EVERYONE) {
             return true;
         }
 
@@ -199,6 +204,10 @@ public final class AlyxCommand {
                     return true;
                 }
             }
+        }
+        final PermissionLevel userPermissionLevel = PermissionLevel.getLevel(eventUser, plugin.alyx);
+        if (userPermissionLevel.isOk(permissionLevel)) {
+            return true;
         }
         // TODO: Private Channel permissions
         return false;

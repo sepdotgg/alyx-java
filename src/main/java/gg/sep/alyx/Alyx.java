@@ -19,14 +19,14 @@ import net.dv8tion.jda.api.entities.User;
 
 import gg.sep.alyx.core.commands.AlyxCommand;
 import gg.sep.alyx.core.commands.AlyxPlugin;
-import gg.sep.alyx.core.commands.PluginManagerPlugin;
-import gg.sep.alyx.core.commands.TestCommandsPlugin;
 import gg.sep.alyx.core.commands.parsers.DoubleParameterParser;
 import gg.sep.alyx.core.commands.parsers.InstantParameterParser;
 import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
 import gg.sep.alyx.core.commands.parsers.LongParameterParser;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.core.commands.parsers.StringParameterParser;
+import gg.sep.alyx.core.commands.plugins.AdminCommandsPlugin;
+import gg.sep.alyx.core.commands.plugins.PluginManagerPlugin;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.events.AlyxCommandListener;
 import gg.sep.alyx.events.EventWaiter;
@@ -94,11 +94,14 @@ public final class Alyx {
         try {
             final Alyx alyx = new Alyx(botEntry);
             final PluginManagerPlugin pluginManager = new PluginManagerPlugin(alyx);
+            final AdminCommandsPlugin adminPlugin = new AdminCommandsPlugin(alyx);
             alyx.registerDefaultParsers();
 
             alyx.registerPlugin(pluginManager);
-            alyx.registerPlugin(new TestCommandsPlugin(alyx));
+            alyx.registerPlugin(adminPlugin);
+
             alyx.loadPlugin(pluginManager);
+            alyx.loadPlugin(adminPlugin);
             return alyx;
         } catch (final AlyxException | LoginException | IOException e) {
             throw new RuntimeException(e);

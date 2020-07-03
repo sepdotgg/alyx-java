@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 import net.dv8tion.jda.api.Permission;
 
+import gg.sep.alyx.core.permissions.PermissionLevel;
+
 /**
  * Annotation used on {@link AlyxPlugin} methods to designate bot command handlers.
  */
@@ -44,4 +46,10 @@ public @interface Command {
      * @return Array of role names which are allowed to execute this command.
      */
     String[] roles() default {};
+
+    /**
+     * The minimum permission level required to run this command.
+     * @return The minimum permission level required to run this command.
+     */
+    PermissionLevel level() default PermissionLevel.EVERYONE;
 }

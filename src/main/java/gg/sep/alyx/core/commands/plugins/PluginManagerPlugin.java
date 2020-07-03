@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.core.commands.plugins;
 
 import static gg.sep.alyx.core.commands.CommandConstants.ALYX_PLUGIN_SERIAL;
 
@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
 import gg.sep.alyx.AlyxException;
+import gg.sep.alyx.core.commands.AlyxPlugin;
+import gg.sep.alyx.core.commands.Command;
 
 /**
  * Default plugin for managing other plugins in Alyx.
