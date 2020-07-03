@@ -1,5 +1,7 @@
 package gg.sep.alyx.core.commands;
 
+import static gg.sep.alyx.core.commands.CommandConstants.ALYX_PLUGIN_SERIAL;
+
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
@@ -16,7 +18,7 @@ public class TestCommandsPlugin extends AlyxPlugin {
      * @param alyx Instance of Alyx.
      */
     public TestCommandsPlugin(final Alyx alyx) {
-        super(NAME, 239934148704337930L, alyx);
+        super(NAME, ALYX_PLUGIN_SERIAL, alyx);
     }
 
     /**

@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.security.auth.login.LoginException;
 
 import lombok.Getter;
@@ -16,9 +18,15 @@ import net.dv8tion.jda.api.entities.Activity;
 
 import gg.sep.alyx.core.commands.AlyxCommand;
 import gg.sep.alyx.core.commands.AlyxPlugin;
-import gg.sep.alyx.core.commands.TestCommandsPlugin;
+import gg.sep.alyx.core.commands.parsers.DoubleParameterParser;
+import gg.sep.alyx.core.commands.parsers.InstantParameterParser;
+import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
+import gg.sep.alyx.core.commands.parsers.LongParameterParser;
+import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.core.commands.parsers.StringParameterParser;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.events.AlyxCommandListener;
+import gg.sep.alyx.events.EventWaiter;
 import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
 
@@ -30,20 +38,38 @@ public final class Alyx {
     private final BotConfig botConfig;
     private final JDA jda;
 
+    @Getter private final EventWaiter eventWaiter;
     @Getter private final String commandPrefix;
     @Getter private final Set<AlyxPlugin> registeredPlugins = Collections.synchronizedSet(new HashSet<>());
     @Getter private final Set<AlyxPlugin> loadedPlugins = Collections.synchronizedSet(new HashSet<>());
+    @Getter private final Map<Class<?>, ParameterParser<?>> parameterParsers = new ConcurrentHashMap<>();
+
     @Getter private final List<AlyxCommand> commandsList = new ArrayList<>();
 
     private Alyx(final BotEntry botEntry) throws LoginException, IOException {
         this.botEntry = botEntry;
         this.botConfig = loadBotConfig(botEntry);
         this.commandPrefix = botConfig.getCommandPrefix().toString();
+        this.eventWaiter = new EventWaiter();
 
         this.jda = JDABuilder.createLight(botConfig.getDiscordToken())
             .addEventListeners(new AlyxCommandListener(this))
+            .addEventListeners(eventWaiter)
+            .setAutoReconnect(true)
             .setActivity(Activity.playing("Type !ping"))
             .build();
+    }
+
+    /**
+     * Registers a {@link ParameterParser} for use in Alyx when parsing command strings.
+     * TODO: This should happen as part of the plugin registration process.
+     *       Make them specific to plugins so that each plugin can handle same types differently?
+     *
+     * @param parser The parser to register. This will (currently) override any other existing parsers for
+     *               the parser's type.
+     */
+    public void registerParameterParser(final ParameterParser<?> parser) {
+        this.parameterParsers.put(parser.getType(), parser);
     }
 
     /**
@@ -55,7 +81,7 @@ public final class Alyx {
     public static Alyx launchBot(final BotEntry botEntry) {
         try {
             final Alyx alyx = new Alyx(botEntry);
-            alyx.registerPlugin(new TestCommandsPlugin(alyx));
+            alyx.registerDefaultParsers();
             return alyx;
         } catch (final LoginException | IOException e) {
             throw new RuntimeException(e);
@@ -73,8 +99,9 @@ public final class Alyx {
 
         // TODO: Loading/unloading won't be here so remove the try/catch
         try {
-            this.registeredPlugins.add(plugin);
-            this.loadPlugin(plugin);
+            if (!this.registeredPlugins.add(plugin)) {
+                throw new AlyxException("A matching plugin already exists.");
+            }
         } catch (final AlyxException e) {
             throw new RuntimeException(e);
         }
@@ -84,10 +111,17 @@ public final class Alyx {
      * Shuts down this instance of Alyx.
      */
     public void shutdown() {
+        // TODO: Plugin shutdown procedures
         this.jda.shutdownNow();
     }
 
-    private void loadPlugin(final AlyxPlugin plugin) throws AlyxException {
+    /**
+     * Loads the specified plugin into this instance of Alyx.
+     *
+     * @param plugin The plugin to load.
+     * @throws AlyxException Exception thrown if the plugin is not registered.
+     */
+    public void loadPlugin(final AlyxPlugin plugin) throws AlyxException {
         if (!registeredPlugins.contains(plugin)) {
             throw new AlyxException(
                 String.format("Plugin '%s' is not registered.", plugin.getName())
@@ -97,7 +131,31 @@ public final class Alyx {
         this.commandsList.addAll(plugin.loadCommands());
     }
 
-    private void unloadPlugin(final AlyxPlugin plugin) throws AlyxException {
+    /**
+     * Unloads the specified plugin from this instance of Alyx.
+     *
+     * If the plugin is guarded, an {@link AlyxException} will be thrown.
+     *
+     * @param plugin The plugin to unload.
+     * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
+     */
+    public void unloadPlugin(final AlyxPlugin plugin) throws AlyxException {
+        this.unloadPlugin(plugin, false);
+    }
+
+    /**
+     * TODO: Make this method public, but add permissions to override the guard.
+     * @param plugin The plugin to unload.
+     * @param guardOverride If set to {@code true}, guarded plugins can be unloaded.
+     *                      This is extremely dangerous since it's possible they might
+     *                      not ever be able to be loaded again without modifying config files (eg, PluginManager).
+     * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
+     */
+    private void unloadPlugin(final AlyxPlugin plugin, final boolean guardOverride) throws AlyxException {
+        if (plugin.isGuarded() && !guardOverride) {
+            throw new AlyxException(plugin.getName() + " is a guarded plugin.");
+        }
+
         if (!registeredPlugins.contains(plugin) || !loadedPlugins.contains(plugin)) {
             throw new AlyxException(
                 String.format("Plugin '%s' is not registered or loaded", plugin.getName())
@@ -105,6 +163,19 @@ public final class Alyx {
         }
         this.loadedPlugins.remove(plugin);
         this.commandsList.removeAll(plugin.loadCommands());
+    }
+
+    /**
+     * Registers the default parsers that come as a part of Alyx.
+     */
+    private void registerDefaultParsers() {
+        List.of(
+            new StringParameterParser(),
+            new IntegerParameterParser(),
+            new DoubleParameterParser(),
+            new LongParameterParser(),
+            new InstantParameterParser()
+        ).forEach(this::registerParameterParser);
     }
 
     /**
