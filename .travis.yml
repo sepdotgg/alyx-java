@@ -1,12 +1,20 @@
-language: java
-install: true
-
-jdk:
-  - oraclejdk11
-  - openjdk11
-
-script:
-  - ./gradlew build
+jobs:
+  include:
+    - stage: "Build"
+      name: "Sphinx Docs (HTML)"
+      language: python
+      python: 3.8
+      install:
+        - pip install sphinx sphinx_rtd_theme recommonmark
+      script:
+        - cd docs
+        - make html
+    - language: java
+      jdk: oraclejdk11
+      script: ./gradlew build
+    - language: java
+      jdk: openjdk11
+      script: ./gradlew build
 
 
 after_success:

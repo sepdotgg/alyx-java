@@ -1,6 +1,6 @@
 # This Dockerfile is to build Docker image to build sphinx documents.
 # Run `docker build -t alyx-sphinx .` to build docker image,
-# and run `docker run -it -v $(pwd)/:/documents alyx-sphinx make html` to generate documents.
+# and run `docker run -it -v $(pwd)/:/docs alyx-sphinx make html` to generate documents.
 
 FROM ubuntu:xenial
 
@@ -9,7 +9,7 @@ FROM ubuntu:xenial
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-RUN mkdir documents
+RUN mkdir docs
 RUN apt-get update && \
     apt-get install -y texlive texlive-latex-extra pandoc build-essential curl make python3 && \
     apt-get autoremove && \
@@ -18,7 +18,7 @@ RUN curl -kL https://bootstrap.pypa.io/get-pip.py | python3
 
 RUN pip3 install sphinx sphinx_rtd_theme recommonmark
 
-WORKDIR /documents
-VOLUME /documents
+WORKDIR /docs
+VOLUME /docs
 
 CMD ["/bin/bash"]
