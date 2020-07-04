@@ -35,10 +35,7 @@ import gg.sep.alyx.model.JsonSerializable;
  *       allows better scalability since you can share instances of plugins across Alyx instances.
  */
 public abstract class AlyxPlugin<C extends JsonSerializable> {
-    private final long serial;
-
     private C pluginData = null;
-
     @Getter(AccessLevel.PROTECTED)
     private final Alyx alyx;
     @Getter
@@ -51,7 +48,6 @@ public abstract class AlyxPlugin<C extends JsonSerializable> {
     protected AlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this.name = name;
         this.alyx = alyx;
-        this.serial = serial;
         this.identifier = String.format("%s.%s", serial, name);
         this.guarded = false;
     }
