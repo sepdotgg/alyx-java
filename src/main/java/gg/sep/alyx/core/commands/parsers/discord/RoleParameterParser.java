@@ -3,25 +3,30 @@ package gg.sep.alyx.core.commands.parsers.discord;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.core.commands.parsers.CommandParseException;
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.util.Strings;
 
 /**
  * Handles parsing of String parameters into Discord Roles.
  *
- * It will handle both the ID of the role and, if the event originated from a Guild channel,
- * the name of the role as well.
+ * Order of evaluation:
+ *   - ID
+ *   - Mention
+ *   - (if in a guild) Role Name, case insensitive
  */
-@RequiredArgsConstructor
-public class RoleParameterParser implements ParameterParser<Role> {
+public class RoleParameterParser extends MentionParser<Role> {
+
+    /**
+     * Creates a new instance of the RoleParameterParser.
+     */
+    public RoleParameterParser() {
+        super(Message.MentionType.ROLE.getPattern(), 1);
+    }
 
     /**
      * {@inheritDoc}
@@ -35,29 +40,43 @@ public class RoleParameterParser implements ParameterParser<Role> {
      * {@inheritDoc}
      */
     @Override
+    protected Role getMentionedItem(final String value, final Event event) {
+        if (matches(value)) {
+            return event.getJDA().getRoleById(getMentionId(value));
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Role parse(final String value, final Event event) throws CommandParseException {
         Role role = null;
+
+        // match by ID
         if (Strings.isNumeric(value)) {
             // try getting it by number
             role = event.getJDA().getRoleById(value);
-        } else {
-            final Guild guild = getGuild(event);
-            if (guild != null) {
-                final List<Role> roles = guild.getRoles().stream()
-                    .filter(r -> r.getName().equalsIgnoreCase(value))
-                    .collect(Collectors.toList());
-                role = roles.size() > 0 ? roles.get(0) : null;
+            if (role != null) {
+                return role;
             }
         }
-        return role;
-    }
 
-    private Guild getGuild(final Event event) {
-        if (event instanceof GenericGuildEvent) {
-            return ((GenericGuildEvent) event).getGuild();
-        } else if (event instanceof MessageReceivedEvent && ((MessageReceivedEvent) event).isFromGuild()) {
-            return ((MessageReceivedEvent) event).getGuild();
+        // match by mention
+        role = getMentionedItem(value, event);
+        if (role != null) {
+            return role;
         }
-        return null;
+
+        // match by name
+        final Guild guild = getGuild(event);
+        if (guild != null) {
+            final List<Role> roles = guild.getRoles().stream()
+                .filter(r -> r.getName().equalsIgnoreCase(value))
+                .collect(Collectors.toList());
+            role = roles.size() > 0 ? roles.get(0) : null;
+        }
+        return role;
     }
 }

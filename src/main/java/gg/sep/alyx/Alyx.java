@@ -26,6 +26,8 @@ import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
 import gg.sep.alyx.core.commands.parsers.LongParameterParser;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.core.commands.parsers.StringParameterParser;
+import gg.sep.alyx.core.commands.parsers.discord.ChannelParameterParser;
+import gg.sep.alyx.core.commands.parsers.discord.EmoteParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.RoleParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.UserParameterParser;
 import gg.sep.alyx.core.commands.plugins.AdminCommandsPlugin;
@@ -213,7 +215,9 @@ public final class Alyx {
 
             // Discord types
             new UserParameterParser(),
-            new RoleParameterParser()
+            new RoleParameterParser(),
+            new ChannelParameterParser(),
+            new EmoteParameterParser()
         ).forEach(this::registerParameterParser);
     }
 
