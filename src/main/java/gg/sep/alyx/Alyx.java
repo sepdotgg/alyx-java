@@ -128,6 +128,7 @@ public final class Alyx {
             if (!this.registeredPlugins.add(plugin)) {
                 throw new AlyxException("A matching plugin already exists.");
             }
+            plugin.register();
         } catch (final AlyxException e) {
             throw new RuntimeException(e);
         }
@@ -156,6 +157,7 @@ public final class Alyx {
 
         this.loadedPlugins.add(plugin);
         this.commandsList.addAll(plugin.loadCommands());
+        plugin.load();
     }
 
     /**
@@ -188,6 +190,7 @@ public final class Alyx {
                 String.format("Plugin '%s' is not registered or loaded", plugin.getName())
             );
         }
+        plugin.unload();
         this.loadedPlugins.remove(plugin);
         this.commandsList.removeAll(plugin.loadCommands());
     }

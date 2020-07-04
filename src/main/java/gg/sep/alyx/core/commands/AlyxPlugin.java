@@ -65,6 +65,22 @@ public abstract class AlyxPlugin {
         return this.alyx.getLoadedPlugins().contains(this);
     }
 
+
+    /**
+     * Hook called when the plugin is registered.
+     */
+    public void register() { }
+
+    /**
+     * Hook called when the plugin is loaded.
+     */
+    public void load() { }
+
+    /**
+     * Hook called when the plugin is unloaded.
+     */
+    public void unload() { }
+
     /**
      * Returns the {@link Command} commands present in this plugin.
      *
