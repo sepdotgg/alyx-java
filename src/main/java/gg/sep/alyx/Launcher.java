@@ -49,6 +49,8 @@ public final class Launcher {
         final Result<BotEntry, String> botEntry = arguments.isSetup() ? setup(configHandler, textIO) :
             loadExisting(botName, configHandler, textIO);
 
+        textIO.dispose();
+
         if (botEntry.isErr()) {
             errorExit(botEntry.unwrapErr());
         }
