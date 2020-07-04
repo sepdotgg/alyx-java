@@ -37,6 +37,7 @@ import gg.sep.alyx.core.commands.parsers.discord.UserParameterParser;
 import gg.sep.alyx.core.commands.plugins.AdminCommandsPlugin;
 import gg.sep.alyx.core.commands.plugins.PluginManagerPlugin;
 import gg.sep.alyx.core.config.ConfigHandler;
+import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.events.AlyxCommandListener;
 import gg.sep.alyx.events.EventWaiter;
 import gg.sep.alyx.model.config.BotConfig;
@@ -47,6 +48,7 @@ import gg.sep.alyx.model.config.BotEntry;
  */
 @Log4j2
 public final class Alyx {
+    @Getter
     private final BotEntry botEntry;
     private final BotConfig botConfig;
     private volatile boolean isShutdown = false;
@@ -60,13 +62,15 @@ public final class Alyx {
     @Getter
     private final User botOwner;
     @Getter
-    private final Set<AlyxPlugin> registeredPlugins = Collections.synchronizedSet(new HashSet<>());
+    private final Set<AlyxPlugin<?>> registeredPlugins = Collections.synchronizedSet(new HashSet<>());
     @Getter
-    private final Set<AlyxPlugin> loadedPlugins = Collections.synchronizedSet(new HashSet<>());
+    private final Set<AlyxPlugin<?>> loadedPlugins = Collections.synchronizedSet(new HashSet<>());
     @Getter
     private final Map<Class<?>, ParameterParser<?>> parameterParsers = new ConcurrentHashMap<>();
     @Getter
     private final List<AlyxCommand> commandsList = new ArrayList<>();
+    @Getter
+    private final JsonStorageEngine storageEngine = new JsonStorageEngine();
 
     private Alyx(final BotEntry botEntry) throws LoginException, IOException {
         this.botEntry = botEntry;
@@ -128,7 +132,7 @@ public final class Alyx {
      * TODO: Allow loading/unloading of plugins. Registering just makes it available, but does not load.
      * @param plugin The plugin to register.
      */
-    public void registerPlugin(final AlyxPlugin plugin) {
+    public void registerPlugin(final AlyxPlugin<?> plugin) {
 
         // TODO: Loading/unloading won't be here so remove the try/catch
         try {
@@ -150,10 +154,10 @@ public final class Alyx {
             return;
         }
 
-        final List<AlyxPlugin> currentPlugins = new ArrayList<>(this.getRegisteredPlugins());
-        final Map<AlyxPlugin, CompletableFuture<?>> futureMap = new HashMap<>();
+        final List<AlyxPlugin<?>> currentPlugins = new ArrayList<>(this.getRegisteredPlugins());
+        final Map<AlyxPlugin<?>, CompletableFuture<?>> futureMap = new HashMap<>();
 
-        for (final AlyxPlugin plugin : currentPlugins) {
+        for (final AlyxPlugin<?> plugin : currentPlugins) {
             futureMap.put(plugin, plugin.botShutdown().orTimeout(30, TimeUnit.SECONDS));
         }
 
@@ -162,7 +166,7 @@ public final class Alyx {
 
         allShutdown.exceptionally(throwable -> {
             // find the plugins that failed
-            for (final Map.Entry<AlyxPlugin, CompletableFuture<?>> entry : futureMap.entrySet()) {
+            for (final Map.Entry<AlyxPlugin<?>, CompletableFuture<?>> entry : futureMap.entrySet()) {
                 if (entry.getValue().isCancelled() || entry.getValue().isCompletedExceptionally()) {
                     log.error("Error shutting down plugin. plugin={}", entry.getKey().getIdentifier());
                 }
@@ -181,7 +185,7 @@ public final class Alyx {
      * @param plugin The plugin to load.
      * @throws AlyxException Exception thrown if the plugin is not registered.
      */
-    public void loadPlugin(final AlyxPlugin plugin) throws AlyxException {
+    public void loadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
         if (!registeredPlugins.contains(plugin)) {
             throw new AlyxException(
                 String.format("Plugin '%s' is not registered.", plugin.getName())
@@ -201,7 +205,7 @@ public final class Alyx {
      * @param plugin The plugin to unload.
      * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
      */
-    public void unloadPlugin(final AlyxPlugin plugin) throws AlyxException {
+    public void unloadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
         this.unloadPlugin(plugin, false);
     }
 
@@ -213,7 +217,7 @@ public final class Alyx {
      *                      not ever be able to be loaded again without modifying config files (eg, PluginManager).
      * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
      */
-    private void unloadPlugin(final AlyxPlugin plugin, final boolean guardOverride) throws AlyxException {
+    private void unloadPlugin(final AlyxPlugin<?> plugin, final boolean guardOverride) throws AlyxException {
         if (plugin.isGuarded() && !guardOverride) {
             throw new AlyxException(plugin.getName() + " is a guarded plugin.");
         }

@@ -7,12 +7,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import gg.sep.alyx.Alyx;
 import gg.sep.alyx.core.commands.AlyxPlugin;
 import gg.sep.alyx.core.commands.Command;
+import gg.sep.alyx.core.commands.FooData;
 import gg.sep.alyx.core.permissions.PermissionLevel;
 
 /**
  * Command to administer the Alyx bot instance.
  */
-public class AdminCommandsPlugin extends AlyxPlugin {
+public class AdminCommandsPlugin extends AlyxPlugin<FooData> {
     private static final String NAME = "AlyxAdminCommands";
 
     /**
@@ -30,7 +31,23 @@ public class AdminCommandsPlugin extends AlyxPlugin {
     @Command(name = "shutdown", level = PermissionLevel.BOT_ADMIN)
     public void shutdown(final MessageReceivedEvent event) {
         event.getChannel().sendMessage("Shutting down... :wave:").queue(message -> {
-            alyx.shutdown();
+            getAlyx().shutdown();
         });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<FooData> storageDataType() {
+        return FooData.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected FooData freshPluginData() {
+        return new FooData();
     }
 }

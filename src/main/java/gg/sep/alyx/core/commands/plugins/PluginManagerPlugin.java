@@ -11,6 +11,7 @@ import gg.sep.alyx.Alyx;
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.AlyxPlugin;
 import gg.sep.alyx.core.commands.Command;
+import gg.sep.alyx.core.commands.StatelessAlyxPlugin;
 
 /**
  * Default plugin for managing other plugins in Alyx.
@@ -18,7 +19,7 @@ import gg.sep.alyx.core.commands.Command;
  *
  * See {@link #AlyxPlugin#isGuarded()} for info.
  */
-public class PluginManagerPlugin extends AlyxPlugin {
+public class PluginManagerPlugin extends StatelessAlyxPlugin {
     private static final String NAME = "AlyxPluginManager";
 
     /**
@@ -39,7 +40,7 @@ public class PluginManagerPlugin extends AlyxPlugin {
     public void listPlugins(final MessageReceivedEvent event) {
         final List<String> lines = new ArrayList<>();
 
-        alyx.getRegisteredPlugins()
+        getAlyx().getRegisteredPlugins()
             .forEach(plugin -> {
                 final String pluginPrefix = plugin.isLoaded() ? "✅" : "❌";
                 lines.add(pluginPrefix + " " + plugin.getName());
@@ -59,9 +60,9 @@ public class PluginManagerPlugin extends AlyxPlugin {
     @Command(name = "plugins")
     @Command(name = "load")
     public void loadPlugin(final MessageReceivedEvent event, final String pluginName) throws AlyxException {
-        for (final AlyxPlugin plugin : alyx.getRegisteredPlugins()) {
+        for (final AlyxPlugin<?> plugin : getAlyx().getRegisteredPlugins()) {
             if (pluginName.trim().equals(plugin.getName())) {
-                alyx.loadPlugin(plugin);
+                getAlyx().loadPlugin(plugin);
                 event.getMessage().addReaction("✅").queue();
                 return;
             }
@@ -81,9 +82,9 @@ public class PluginManagerPlugin extends AlyxPlugin {
     @Command(name = "unload")
     public void unloadPlugin(final MessageReceivedEvent event, final String pluginName) throws AlyxException {
 
-        for (final AlyxPlugin plugin : alyx.getRegisteredPlugins()) {
+        for (final AlyxPlugin<?> plugin : getAlyx().getRegisteredPlugins()) {
             if (pluginName.trim().equals(plugin.getName())) {
-                alyx.unloadPlugin(plugin);
+                getAlyx().unloadPlugin(plugin);
                 event.getMessage().addReaction("✅").queue();
                 return;
             }

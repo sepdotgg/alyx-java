@@ -8,11 +8,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,20 +22,31 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import gg.sep.alyx.Alyx;
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.core.storage.json.JsonStorageEngine;
+import gg.sep.alyx.model.JsonSerializable;
 
 /**
  * A plugin for {@link Alyx}, containing commands and event listeners which can be loaded into a bot instance.
+ *
+ * @param <C> The type of the data for this plugin.
  *
  * TODO: Consider making plugins semi-stateless, ie, not need to have an instance of Alyx included.
  *       This would instead require Alyx be passed in as a parameter to each command method, but
  *       allows better scalability since you can share instances of plugins across Alyx instances.
  */
-public abstract class AlyxPlugin {
+public abstract class AlyxPlugin<C extends JsonSerializable> {
     private final long serial;
-    protected final Alyx alyx;
-    @Getter private boolean guarded;
-    @Getter private final String identifier;
-    @Getter private final String name;
+
+    private C pluginData = null;
+
+    @Getter(AccessLevel.PROTECTED)
+    private final Alyx alyx;
+    @Getter
+    private boolean guarded;
+    @Getter
+    private final String identifier;
+    @Getter
+    private final String name;
 
     protected AlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this.name = name;
@@ -46,6 +59,43 @@ public abstract class AlyxPlugin {
     protected AlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
         this(name, serial, alyx);
         this.guarded = isGuarded;
+    }
+
+    /**
+     * Returns the class of this plugin's data object.
+     * @return The class of this plugin's data object.
+     */
+    public abstract Class<C> storageDataType();
+
+    /**
+     * Generates a fresh plugin data object in the event one does not already exist.
+     * @return Fresh plugin data object.
+     */
+    protected abstract C freshPluginData();
+
+    /**
+     * Returns the plugin's data that is currently loaded.
+     * @return The currently loaded plugin data.
+     */
+    public C getPluginData() {
+        return this.pluginData;
+    }
+
+    /**
+     * Writes the plugin's data to the storage engine.
+     */
+    public synchronized void writePluginData() {
+        final JsonStorageEngine storageEngine = alyx.getStorageEngine();
+        storageEngine.writePluginData(identifier, this.alyx.getBotEntry().getDataDir(), getPluginData());
+    }
+
+    /**
+     * Loads the plugin's data from the storage engine.
+     * @return Optional of the plugin's data if successfully loaded, otherwise empty.
+     */
+    public synchronized Optional<C> loadPluginData() {
+        final JsonStorageEngine storageEngine = alyx.getStorageEngine();
+        return storageEngine.loadPluginData(identifier, this.alyx.getBotEntry().getDataDir(), this.storageDataType());
     }
 
     /**
@@ -69,18 +119,25 @@ public abstract class AlyxPlugin {
 
     /**
      * Hook called when the plugin is registered.
+     * TODO: Make this a future
      */
     public void register() { }
 
     /**
      * Hook called when the plugin is loaded.
+     * TODO: Make this a future
      */
-    public void load() { }
+    public void load() {
+        this.pluginData = loadPluginData().orElseGet(this::freshPluginData);
+    }
 
     /**
      * Hook called when the plugin is unloaded.
+     * TODO: Make this a future
      */
-    public void unload() { }
+    public void unload() {
+        this.writePluginData();
+    }
 
     /**
      * Hook called when the bot is shut down.
@@ -91,7 +148,7 @@ public abstract class AlyxPlugin {
      * @return Returns a completable future which can be monitored for the shutdown process.
      */
     public CompletableFuture<Void> botShutdown() {
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.runAsync(this::writePluginData);
     }
 
     /**
@@ -242,7 +299,7 @@ public abstract class AlyxPlugin {
         if (!(other instanceof AlyxPlugin)) {
             return false;
         }
-        final AlyxPlugin plugin = (AlyxPlugin) other;
+        final AlyxPlugin<?> plugin = (AlyxPlugin<?>) other;
         return this.identifier.equals(plugin.identifier);
     }
 }

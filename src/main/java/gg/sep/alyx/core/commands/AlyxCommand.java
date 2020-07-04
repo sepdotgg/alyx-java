@@ -26,7 +26,7 @@ import gg.sep.alyx.util.Strings;
  */
 @AllArgsConstructor
 public final class AlyxCommand {
-    private final AlyxPlugin plugin;
+    private final AlyxPlugin<?> plugin;
 
     @Setter private Collection<Permission> requiredPermissions;
     @Setter private Collection<String> requiredRoles;
@@ -48,7 +48,7 @@ public final class AlyxCommand {
      * @param parsers Parameter parsers used by the command.
      * @param method The Java method which executes the command.
      */
-    public AlyxCommand(final AlyxPlugin plugin, final String name, final List<List<String>> commandChain,
+    public AlyxCommand(final AlyxPlugin<?> plugin, final String name, final List<List<String>> commandChain,
                        final List<ParameterParser<?>> parsers, final Method method) {
 
         this(plugin, Collections.emptyList(), Collections.emptyList(),
@@ -179,7 +179,7 @@ public final class AlyxCommand {
         }
 
         final User eventUser = event.getAuthor();
-        final User botOwner = plugin.alyx.getBotOwner();
+        final User botOwner = plugin.getAlyx().getBotOwner();
 
         // bot owner
         if (eventUser.equals(botOwner)) {
@@ -211,7 +211,7 @@ public final class AlyxCommand {
                 }
             }
         }
-        final PermissionLevel userPermissionLevel = PermissionLevel.getLevel(eventUser, plugin.alyx);
+        final PermissionLevel userPermissionLevel = PermissionLevel.getLevel(eventUser, plugin.getAlyx());
         if (userPermissionLevel.isOk(permissionLevel)) {
             return true;
         }
