@@ -49,7 +49,19 @@ public @interface Command {
 
     /**
      * The minimum permission level required to run this command.
+     *
+     * Defaults to {@link PermissionLevel#EVERYONE}.
+     *
      * @return The minimum permission level required to run this command.
      */
     PermissionLevel level() default PermissionLevel.EVERYONE;
+
+    /**
+     * Whether the command can only be executed within the context of a Guild/Server.
+     *
+     * Defaults to {@code false}.
+     *
+     * @return Returns {@code true} if the command
+     */
+    boolean guildOnly() default false;
 }

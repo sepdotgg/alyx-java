@@ -31,6 +31,7 @@ public final class AlyxCommand {
     @Setter private Collection<Permission> requiredPermissions;
     @Setter private Collection<String> requiredRoles;
     @Setter private PermissionLevel permissionLevel;
+    @Setter private boolean guildOnly;
 
     private final String name;
     private final List<List<String>> commandChain;
@@ -51,7 +52,7 @@ public final class AlyxCommand {
                        final List<ParameterParser<?>> parsers, final Method method) {
 
         this(plugin, Collections.emptyList(), Collections.emptyList(),
-            PermissionLevel.EVERYONE, name, commandChain, parsers, method);
+            PermissionLevel.EVERYONE, false, name, commandChain, parsers, method);
     }
 
     /**
@@ -164,6 +165,11 @@ public final class AlyxCommand {
     }
 
     private boolean canUseCommand(final MessageReceivedEvent event) {
+
+        // check if this is a guild only command being called in a private channel
+        if (!event.isFromGuild() && guildOnly) {
+            return false;
+        }
 
         // if there's no required roles or permissions, return true
         if (requiredRoles.size() == 0

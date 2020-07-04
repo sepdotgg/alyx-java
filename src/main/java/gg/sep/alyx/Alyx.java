@@ -66,7 +66,7 @@ public final class Alyx {
             .addEventListeners(new AlyxCommandListener(this))
             .addEventListeners(eventWaiter)
             .setAutoReconnect(true)
-            .setActivity(Activity.playing("Type !ping"))
+            .setActivity(Activity.playing("λ Half Life: Alyx"))
             .build();
 
         this.botOwner = retrieveBotOwner(this.jda);

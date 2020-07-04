@@ -98,7 +98,8 @@ public abstract class AlyxPlugin {
         final List<List<String>> commandChain = getCommandChain(commands);
         final List<ParameterParser<?>> commandParsers = extractParsers(method);
 
-        // use the permissions associated with the last command for now: TODO
+        // use the permissions associated with the last command for now
+        // TODO
         final Command lastCommand = commands[commands.length - 1];
         final String[] requiredRoles = lastCommand.roles();
         final Permission[] requiredPermissions = lastCommand.permissions();
@@ -108,6 +109,7 @@ public abstract class AlyxPlugin {
             Arrays.asList(requiredPermissions),
             Arrays.asList(requiredRoles),
             lastCommand.level(),
+            lastCommand.guildOnly(),
             getCommandName(commands),
             commandChain,
             commandParsers,
