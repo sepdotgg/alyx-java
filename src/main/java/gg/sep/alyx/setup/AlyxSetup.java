@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.setup;
+package gg.sep.alyx.setup;
 
 import java.io.IOException;
 import java.net.URI;

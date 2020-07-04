@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.setup;
+package gg.sep.alyx.setup;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

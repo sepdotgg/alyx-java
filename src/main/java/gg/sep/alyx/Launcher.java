@@ -11,7 +11,7 @@ import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 
 import gg.sep.alyx.core.config.ConfigHandler;
-import gg.sep.alyx.core.setup.AlyxSetup;
+import gg.sep.alyx.setup.AlyxSetup;
 import gg.sep.alyx.core.startup.AlyxCommandLineParser;
 import gg.sep.alyx.core.startup.AlyxStartupArguments;
 import gg.sep.alyx.model.config.AlyxConfig;
