@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,6 +81,18 @@ public abstract class AlyxPlugin {
      * Hook called when the plugin is unloaded.
      */
     public void unload() { }
+
+    /**
+     * Hook called when the bot is shut down.
+     *
+     * This should <em>not</em> block the main thread, but instead return a future which can be waited
+     * on by the shutdown process across all plugins.
+     *
+     * @return Returns a completable future which can be monitored for the shutdown process.
+     */
+    public CompletableFuture<Void> botShutdown() {
+        return CompletableFuture.completedFuture(null);
+    }
 
     /**
      * Returns the {@link Command} commands present in this plugin.

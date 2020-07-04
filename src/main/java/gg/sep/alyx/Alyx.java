@@ -3,15 +3,19 @@ package gg.sep.alyx;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import javax.security.auth.login.LoginException;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -41,9 +45,12 @@ import gg.sep.alyx.model.config.BotEntry;
 /**
  * The Alyx bot instance.
  */
+@Log4j2
 public final class Alyx {
     private final BotEntry botEntry;
     private final BotConfig botConfig;
+    private volatile boolean isShutdown = false;
+
     @Getter private final JDA jda;
 
     @Getter
@@ -137,9 +144,35 @@ public final class Alyx {
     /**
      * Shuts down this instance of Alyx.
      */
-    public void shutdown() {
-        // TODO: Plugin shutdown procedures
+    public synchronized void shutdown() {
+        if (isShutdown) {
+            log.error("Attempted to shut down an already shut down bot.");
+            return;
+        }
+
+        final List<AlyxPlugin> currentPlugins = new ArrayList<>(this.getRegisteredPlugins());
+        final Map<AlyxPlugin, CompletableFuture<?>> futureMap = new HashMap<>();
+
+        for (final AlyxPlugin plugin : currentPlugins) {
+            futureMap.put(plugin, plugin.botShutdown().orTimeout(30, TimeUnit.SECONDS));
+        }
+
+        final CompletableFuture<Void> allShutdown = CompletableFuture.allOf(futureMap.values()
+            .toArray(new CompletableFuture[0]));
+
+        allShutdown.exceptionally(throwable -> {
+            // find the plugins that failed
+            for (final Map.Entry<AlyxPlugin, CompletableFuture<?>> entry : futureMap.entrySet()) {
+                if (entry.getValue().isCancelled() || entry.getValue().isCompletedExceptionally()) {
+                    log.error("Error shutting down plugin. plugin={}", entry.getKey().getIdentifier());
+                }
+            }
+            log.error("Error shutting down plugins.", throwable);
+            return null;
+        }).join();
+
         this.jda.shutdownNow();
+        this.isShutdown = true;
     }
 
     /**
