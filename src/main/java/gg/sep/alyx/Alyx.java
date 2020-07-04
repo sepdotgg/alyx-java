@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import gg.sep.alyx.core.commands.AlyxCommand;
 import gg.sep.alyx.core.commands.AlyxPlugin;
@@ -25,6 +26,8 @@ import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
 import gg.sep.alyx.core.commands.parsers.LongParameterParser;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.core.commands.parsers.StringParameterParser;
+import gg.sep.alyx.core.commands.parsers.discord.RoleParameterParser;
+import gg.sep.alyx.core.commands.parsers.discord.UserParameterParser;
 import gg.sep.alyx.core.commands.plugins.AdminCommandsPlugin;
 import gg.sep.alyx.core.commands.plugins.PluginManagerPlugin;
 import gg.sep.alyx.core.config.ConfigHandler;
@@ -39,7 +42,7 @@ import gg.sep.alyx.model.config.BotEntry;
 public final class Alyx {
     private final BotEntry botEntry;
     private final BotConfig botConfig;
-    private final JDA jda;
+    @Getter private final JDA jda;
 
     @Getter
     private final EventWaiter eventWaiter;
@@ -62,9 +65,10 @@ public final class Alyx {
         this.commandPrefix = botConfig.getCommandPrefix().toString();
         this.eventWaiter = new EventWaiter();
 
-        this.jda = JDABuilder.createLight(botConfig.getDiscordToken())
+        this.jda = JDABuilder.createDefault(botConfig.getDiscordToken())
             .addEventListeners(new AlyxCommandListener(this))
             .addEventListeners(eventWaiter)
+            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
             .setAutoReconnect(true)
             .setActivity(Activity.playing("λ Half Life: Alyx"))
             .build();
@@ -147,6 +151,7 @@ public final class Alyx {
                 String.format("Plugin '%s' is not registered.", plugin.getName())
             );
         }
+
         this.loadedPlugins.add(plugin);
         this.commandsList.addAll(plugin.loadCommands());
     }
@@ -204,7 +209,11 @@ public final class Alyx {
             new IntegerParameterParser(),
             new DoubleParameterParser(),
             new LongParameterParser(),
-            new InstantParameterParser()
+            new InstantParameterParser(),
+
+            // Discord types
+            new UserParameterParser(),
+            new RoleParameterParser()
         ).forEach(this::registerParameterParser);
     }
 

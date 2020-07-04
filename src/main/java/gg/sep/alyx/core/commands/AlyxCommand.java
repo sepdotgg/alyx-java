@@ -148,7 +148,7 @@ public final class AlyxCommand {
 
         // parse the parameter strings into their typed counterparts
         for (int i = 0; i < parameterArgs.length; i++) {
-            final Object parsed = parsers.get(i).parse(parameterArgs[i]);
+            final Object parsed = parsers.get(i).parse(parameterArgs[i], event);
             invokeArgs[i + 1] = parsed;
         }
 
