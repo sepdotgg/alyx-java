@@ -1,4 +1,4 @@
-package gg.sep.alyx.events;
+package gg.sep.alyx.core.events;
 
 import gg.sep.alyx.Alyx;
 

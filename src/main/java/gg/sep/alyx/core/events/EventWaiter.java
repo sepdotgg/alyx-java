@@ -1,4 +1,4 @@
-package gg.sep.alyx.events;
+package gg.sep.alyx.core.events;
 
 import java.time.Duration;
 import java.util.Collection;

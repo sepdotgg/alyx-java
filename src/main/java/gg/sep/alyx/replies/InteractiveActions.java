@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import gg.sep.alyx.Alyx;
-import gg.sep.alyx.events.EventWaiter;
+import gg.sep.alyx.core.events.EventWaiter;
 
 /**
  * Utility class which contains helpers for building common "interactive" wizard-like

@@ -38,8 +38,8 @@ import gg.sep.alyx.plugins.AdminCommandsPlugin;
 import gg.sep.alyx.plugins.PluginManagerPlugin;
 import gg.sep.alyx.core.config.ConfigHandler;
 import gg.sep.alyx.core.storage.json.JsonStorageEngine;
-import gg.sep.alyx.events.AlyxCommandListener;
-import gg.sep.alyx.events.EventWaiter;
+import gg.sep.alyx.core.events.AlyxCommandListener;
+import gg.sep.alyx.core.events.EventWaiter;
 import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
 
