@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 import net.dv8tion.jda.api.Permission;
 
-import gg.sep.alyx.core.permissions.PermissionLevel;
+import gg.sep.alyx.core.commands.permissions.PermissionLevel;
 
 /**
  * Annotation used on {@link AlyxPlugin} methods to designate bot command handlers.

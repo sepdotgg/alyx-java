@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
-import gg.sep.alyx.core.permissions.PermissionLevel;
+import gg.sep.alyx.core.commands.permissions.PermissionLevel;
 import gg.sep.alyx.util.Strings;
 
 /**

@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import gg.sep.alyx.Alyx;
 import gg.sep.alyx.core.commands.Command;
 import gg.sep.alyx.core.commands.StatelessAlyxPlugin;
-import gg.sep.alyx.core.permissions.PermissionLevel;
+import gg.sep.alyx.core.commands.permissions.PermissionLevel;
 
 /**
  * Command to administer the Alyx bot instance.

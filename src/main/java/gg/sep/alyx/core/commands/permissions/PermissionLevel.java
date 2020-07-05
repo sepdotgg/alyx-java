@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.permissions;
+package gg.sep.alyx.core.commands.permissions;
 
 import net.dv8tion.jda.api.entities.User;
 
