@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 
 /**
  * Abstract class which is able to parse Discord mention patterns

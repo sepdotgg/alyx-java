@@ -1,4 +1,4 @@
-package gg.sep.alyx;
+package gg.sep.alyx.plugin;
 
 /**
  * Recoverable exception which can be thrown in Alyx.

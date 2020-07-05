@@ -13,7 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import gg.sep.alyx.core.storage.StorageType;
+import gg.sep.alyx.plugin.storage.StorageType;
 import gg.sep.alyx.model.config.AlyxConfig;
 import gg.sep.alyx.model.config.BotEntry;
 

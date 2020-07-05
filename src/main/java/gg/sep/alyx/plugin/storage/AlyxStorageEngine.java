@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.storage;
+package gg.sep.alyx.plugin.storage;
 
 /**
  * Interface for interacting with the bot's data storage.

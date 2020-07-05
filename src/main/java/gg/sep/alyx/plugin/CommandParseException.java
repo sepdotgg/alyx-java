@@ -1,6 +1,6 @@
-package gg.sep.alyx.core.commands.parsers;
+package gg.sep.alyx.plugin;
 
-import gg.sep.alyx.AlyxException;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 
 /**
  * Exception thrown by a {@link ParameterParser} when parsing a string

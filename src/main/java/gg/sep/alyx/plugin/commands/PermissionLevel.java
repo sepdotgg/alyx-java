@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands.permissions;
+package gg.sep.alyx.plugin.commands;
 
 import net.dv8tion.jda.api.entities.User;
 
@@ -28,7 +28,7 @@ public enum PermissionLevel {
      * Checks whether this permission is at or above the {@code other} permission.
      *
      * In this instance {@code other} should typically be the permission assigned to a
-     * {@link gg.sep.alyx.core.commands.Command#level()}.
+     * {@link Command#level()}.
      *
      * @param other A command's required permission to check against.
      * @return Returns {@code true} if this permission level is at or above the {@code other} permission.

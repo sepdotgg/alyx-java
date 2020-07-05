@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import gg.sep.alyx.core.storage.StorageType;
+import gg.sep.alyx.plugin.storage.StorageType;
 import gg.sep.alyx.model.AbstractJsonObject;
 import gg.sep.alyx.model.JsonSerializable;
 

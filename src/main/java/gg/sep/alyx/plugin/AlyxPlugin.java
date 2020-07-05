@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.plugin;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -14,16 +14,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
-import gg.sep.alyx.AlyxException;
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
+import gg.sep.alyx.plugin.commands.Command;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 
 /**
  * A plugin for {@link Alyx}, containing commands and event listeners which can be loaded into a bot instance.
@@ -36,7 +36,7 @@ import gg.sep.alyx.model.JsonSerializable;
  */
 public abstract class AlyxPlugin<C extends JsonSerializable> {
     private C pluginData = null;
-    @Getter(AccessLevel.PROTECTED)
+    @Getter
     private final Alyx alyx;
     @Getter
     private boolean guarded;

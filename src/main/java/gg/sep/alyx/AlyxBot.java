@@ -22,13 +22,14 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import gg.sep.alyx.core.commands.AlyxCommand;
-import gg.sep.alyx.core.commands.AlyxPlugin;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
+import gg.sep.alyx.plugin.AlyxPlugin;
 import gg.sep.alyx.core.commands.parsers.DoubleParameterParser;
 import gg.sep.alyx.core.commands.parsers.InstantParameterParser;
 import gg.sep.alyx.core.commands.parsers.IntegerParameterParser;
 import gg.sep.alyx.core.commands.parsers.LongParameterParser;
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 import gg.sep.alyx.core.commands.parsers.StringParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.ChannelParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.EmoteParameterParser;

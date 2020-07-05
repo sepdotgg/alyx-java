@@ -1,6 +1,6 @@
 package gg.sep.alyx.plugins;
 
-import gg.sep.alyx.core.commands.AlyxPlugin;
+import gg.sep.alyx.plugin.AlyxPlugin;
 
 /**
  * Constants for Alyx command/plugin packages.

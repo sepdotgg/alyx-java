@@ -1,6 +1,8 @@
-package gg.sep.alyx.core.commands.parsers;
+package gg.sep.alyx.plugin.commands;
 
 import net.dv8tion.jda.api.events.Event;
+
+import gg.sep.alyx.plugin.CommandParseException;
 
 /**
  * Represents a class which is able to parse a string into the given type {@code T}.

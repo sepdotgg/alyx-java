@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import gg.sep.alyx.Alyx;
-import gg.sep.alyx.AlyxException;
-import gg.sep.alyx.core.commands.AlyxCommand;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
 
 /**
  * A abstract listener for Alyx which can be extended in order to listen

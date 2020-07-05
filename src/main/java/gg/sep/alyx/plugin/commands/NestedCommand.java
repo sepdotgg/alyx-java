@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.plugin.commands;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

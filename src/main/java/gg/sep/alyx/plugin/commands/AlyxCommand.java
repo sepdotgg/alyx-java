@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.plugin.commands;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -17,9 +17,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.AlyxException;
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
-import gg.sep.alyx.core.commands.permissions.PermissionLevel;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.AlyxPlugin;
 import gg.sep.alyx.util.Strings;
 
 /**

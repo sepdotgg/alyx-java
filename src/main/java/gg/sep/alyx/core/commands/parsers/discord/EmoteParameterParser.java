@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.Event;
 
-import gg.sep.alyx.core.commands.parsers.CommandParseException;
+import gg.sep.alyx.plugin.CommandParseException;
 import gg.sep.alyx.util.Strings;
 
 /**

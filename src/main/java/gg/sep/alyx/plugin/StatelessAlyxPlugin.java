@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.plugin;
 
 import gg.sep.alyx.Alyx;
 

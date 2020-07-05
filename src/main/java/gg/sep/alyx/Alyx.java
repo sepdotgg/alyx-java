@@ -5,12 +5,14 @@ import java.util.Map;
 
 import net.dv8tion.jda.api.entities.User;
 
-import gg.sep.alyx.core.commands.AlyxCommand;
-import gg.sep.alyx.core.commands.AlyxPlugin;
-import gg.sep.alyx.core.commands.parsers.ParameterParser;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
+import gg.sep.alyx.plugin.AlyxPlugin;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 import gg.sep.alyx.core.events.EventWaiter;
 import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 
 /**
  * Models an instance of an Alyx Discord bot.
@@ -87,7 +89,7 @@ public interface Alyx {
      * The storage engine is used by plugins to persist their data between
      * bot restarts, and provides an interface for retrieving that data.
      *
-     * @return {@link gg.sep.alyx.core.storage.AlyxStorageEngine} used by this
+     * @return {@link AlyxStorageEngine} used by this
      * instance of {@link Alyx}.
      */
     JsonStorageEngine getStorageEngine(); // TODO: Move methods up to the abstract

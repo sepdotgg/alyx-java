@@ -7,9 +7,9 @@ import java.time.Duration;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
-import gg.sep.alyx.core.commands.Command;
-import gg.sep.alyx.core.commands.StatelessAlyxPlugin;
-import gg.sep.alyx.core.commands.permissions.PermissionLevel;
+import gg.sep.alyx.plugin.commands.Command;
+import gg.sep.alyx.plugin.StatelessAlyxPlugin;
+import gg.sep.alyx.plugin.commands.PermissionLevel;
 import gg.sep.alyx.replies.InteractiveActions;
 
 /**

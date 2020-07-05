@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands;
+package gg.sep.alyx.plugin.commands;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 import net.dv8tion.jda.api.Permission;
 
-import gg.sep.alyx.core.commands.permissions.PermissionLevel;
+import gg.sep.alyx.plugin.AlyxPlugin;
 
 /**
  * Annotation used on {@link AlyxPlugin} methods to designate bot command handlers.

@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import gg.sep.alyx.core.commands.NoOpPluginData;
-import gg.sep.alyx.core.storage.AlyxStorageEngine;
+import gg.sep.alyx.plugin.NoOpPluginData;
+import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 import gg.sep.alyx.model.JsonSerializable;
 import gg.sep.alyx.util.ModelParser;
 

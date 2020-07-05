@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import gg.sep.alyx.core.storage.StorageType;
+import gg.sep.alyx.plugin.storage.StorageType;
 import gg.sep.alyx.model.AbstractJsonObject;
 import gg.sep.alyx.model.config.AlyxConfig;
 import gg.sep.alyx.model.config.BotEntry;
