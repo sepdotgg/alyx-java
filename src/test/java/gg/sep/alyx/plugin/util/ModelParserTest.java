@@ -1,4 +1,4 @@
-package gg.sep.alyx.util;
+package gg.sep.alyx.plugin.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,8 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import gg.sep.alyx.plugin.util.ModelParser;
 
 /**
  * Tests for {@link ModelParser}.

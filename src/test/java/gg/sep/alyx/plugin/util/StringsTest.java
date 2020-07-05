@@ -1,4 +1,4 @@
-package gg.sep.alyx.util;
+package gg.sep.alyx.plugin.util;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -7,8 +7,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import gg.sep.alyx.plugin.util.Strings;
 
 /**
  * Unit tests for {@link Strings}.
