@@ -5,13 +5,12 @@ import java.util.Map;
 
 import net.dv8tion.jda.api.entities.User;
 
-import gg.sep.alyx.plugin.AlyxException;
-import gg.sep.alyx.plugin.commands.AlyxCommand;
-import gg.sep.alyx.plugin.AlyxPlugin;
-import gg.sep.alyx.plugin.commands.ParameterParser;
 import gg.sep.alyx.core.events.EventWaiter;
-import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.AlyxPlugin;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
+import gg.sep.alyx.plugin.commands.ParameterParser;
 import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 
 /**
@@ -92,7 +91,7 @@ public interface Alyx {
      * @return {@link AlyxStorageEngine} used by this
      * instance of {@link Alyx}.
      */
-    JsonStorageEngine getStorageEngine(); // TODO: Move methods up to the abstract
+    AlyxStorageEngine getStorageEngine(); // TODO: Move methods up to the abstract
 
     /**
      * Registers a new {@link AlyxPlugin} and makes it available for usage in the bot.

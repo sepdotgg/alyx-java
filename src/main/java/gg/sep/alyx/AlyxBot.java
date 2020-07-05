@@ -41,6 +41,7 @@ import gg.sep.alyx.core.events.EventWaiter;
 import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 import gg.sep.alyx.plugins.AdminCommandsPlugin;
 import gg.sep.alyx.plugins.PluginManagerPlugin;
 
@@ -71,7 +72,7 @@ public final class AlyxBot implements Alyx {
     @Getter
     private final Collection<AlyxCommand> loadedCommands = new ArrayList<>();
     @Getter
-    private final JsonStorageEngine storageEngine = new JsonStorageEngine();
+    private final AlyxStorageEngine storageEngine = new JsonStorageEngine();
 
     private AlyxBot(final BotEntry botEntry) throws LoginException, IOException {
         this.botEntry = botEntry;

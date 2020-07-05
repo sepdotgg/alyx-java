@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import gg.sep.alyx.plugin.storage.StorageType;
-import gg.sep.alyx.model.AbstractJsonObject;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.AbstractJsonObject;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 
 /**
  * Model for the BotEntry entities as part of {@link AlyxConfig}.

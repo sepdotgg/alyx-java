@@ -1,12 +1,12 @@
-package gg.sep.alyx.model;
+package gg.sep.alyx.plugin.storage;
 
 import java.nio.file.Path;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import gg.sep.alyx.model.serializer.PathDeserializerAdapter;
-import gg.sep.alyx.model.serializer.PathSerializerAdapter;
+import gg.sep.alyx.plugin.storage.serializer.PathDeserializerAdapter;
+import gg.sep.alyx.plugin.storage.serializer.PathSerializerAdapter;
 
 
 /**

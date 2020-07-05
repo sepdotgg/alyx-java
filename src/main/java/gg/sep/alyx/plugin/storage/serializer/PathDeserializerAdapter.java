@@ -1,4 +1,4 @@
-package gg.sep.alyx.model.serializer;
+package gg.sep.alyx.plugin.storage.serializer;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;

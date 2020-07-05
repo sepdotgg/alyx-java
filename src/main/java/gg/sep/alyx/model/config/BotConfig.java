@@ -5,8 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import gg.sep.alyx.model.AbstractJsonObject;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.AbstractJsonObject;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 
 /**
  * Configuration settings for a single Alyx bot.

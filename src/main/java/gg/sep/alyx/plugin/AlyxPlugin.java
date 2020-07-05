@@ -19,11 +19,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import gg.sep.alyx.Alyx;
-import gg.sep.alyx.core.storage.json.JsonStorageEngine;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 import gg.sep.alyx.plugin.commands.AlyxCommand;
 import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.commands.ParameterParser;
+import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 
 /**
  * A plugin for {@link Alyx}, containing commands and event listeners which can be loaded into a bot instance.
@@ -81,7 +81,7 @@ public abstract class AlyxPlugin<C extends JsonSerializable> {
      * Writes the plugin's data to the storage engine.
      */
     public synchronized void writePluginData() {
-        final JsonStorageEngine storageEngine = alyx.getStorageEngine();
+        final AlyxStorageEngine storageEngine = alyx.getStorageEngine();
         storageEngine.writePluginData(identifier, this.alyx.getBotEntry().getDataDir(), getPluginData());
     }
 
@@ -90,7 +90,7 @@ public abstract class AlyxPlugin<C extends JsonSerializable> {
      * @return Optional of the plugin's data if successfully loaded, otherwise empty.
      */
     public synchronized Optional<C> loadPluginData() {
-        final JsonStorageEngine storageEngine = alyx.getStorageEngine();
+        final AlyxStorageEngine storageEngine = alyx.getStorageEngine();
         return storageEngine.loadPluginData(identifier, this.alyx.getBotEntry().getDataDir(), this.storageDataType());
     }
 

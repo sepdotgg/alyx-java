@@ -1,7 +1,7 @@
 package gg.sep.alyx.plugin;
 
-import gg.sep.alyx.model.AbstractJsonObject;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.AbstractJsonObject;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 
 /**

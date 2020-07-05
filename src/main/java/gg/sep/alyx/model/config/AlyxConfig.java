@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import gg.sep.alyx.core.config.ConfigHandler;
-import gg.sep.alyx.model.AbstractJsonObject;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.AbstractJsonObject;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 
 /**
  * Model class for the core Alyx configuration JSON file, loaded via {@link ConfigHandler}.

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import gg.sep.alyx.plugin.NoOpPluginData;
 import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
-import gg.sep.alyx.model.JsonSerializable;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 import gg.sep.alyx.util.ModelParser;
 
 /**
@@ -16,14 +16,9 @@ import gg.sep.alyx.util.ModelParser;
 public class JsonStorageEngine implements AlyxStorageEngine {
 
     /**
-     * Load's data for a plugin from a JSON file.
-     *
-     * @param pluginId Unique identifier of the plugin.
-     * @param botDataPath Path to the Bot's data directory.
-     * @param dataClass Class model of the plugin's data.
-     * @param <T> Type of the data class.
-     * @return The plugin's data file loaded from the JSON file if found, otherwise an empty optional.
+     * {@inheritDoc}
      */
+    @Override
     public <T extends JsonSerializable> Optional<T> loadPluginData(
         final String pluginId,
         final Path botDataPath,
@@ -45,13 +40,9 @@ public class JsonStorageEngine implements AlyxStorageEngine {
     }
 
     /**
-     * Writes a plugin's data to its database JSON file.
-     *
-     * @param pluginId Unique identifier of the plugin.
-     * @param botDataPath Path to the Bot's data directory.
-     * @param pluginData The plugin's data.
-     * @param <T> Type of the plugin's data.
+     * {@inheritDoc}
      */
+    @Override
     public <T extends JsonSerializable> void writePluginData(
         final String pluginId,
         final Path botDataPath,

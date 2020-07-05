@@ -1,4 +1,4 @@
-package gg.sep.alyx.model;
+package gg.sep.alyx.plugin.storage;
 
 /**
  * Describes a class which can be serialized to (and from) a JSON string.
