@@ -1,10 +1,0 @@
-»07-05-2020 15:37:33,565 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit2426757471850702005/config.json
-»07-05-2020 15:37:34,297 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit2119658255296302984/config.json
-»07-05-2020 15:37:34,309 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit2713216660352244236/config.json
-	¼07-05-2020 15:37:34,508 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit14822763146907886188/config.json
-
-»07-05-2020 15:37:34,515 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit8535185704696002220/config.json
-¼07-05-2020 15:37:34,516 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit16714605621976586714/config.json
-¼07-05-2020 15:37:34,523 [ERROR] ConfigHandler:loadAlyxConfig@52 - java.nio.file.NoSuchFileException: /var/folders/2n/b_8fxj5n3l502qgnnnsxqnfh0000gn/T/junit16385522647278541713/config.json
-',ü07-05-2020 15:37:34,603 [ERROR] ModelParser:parseJson@35 - Error parsing JSON into models. class=class java.lang.Object, error=com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Expected value at line 1 column 1 path $
-'-â07-05-2020 15:37:34,605 [ERROR] ModelParser:parseJson@35 - Error parsing JSON into models. class=class java.lang.Object, error=com.google.gson.JsonSyntaxException: java.io.EOFException: End of input at line 1 column 2 path $.
