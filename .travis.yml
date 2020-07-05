@@ -1,3 +1,10 @@
+addons:
+  artifacts:
+    # ⋮
+    paths:
+      - ./build
+      - ./docs/_build
+
 jobs:
   include:
     - stage: "Build"
