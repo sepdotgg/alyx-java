@@ -17,7 +17,7 @@ import gg.sep.alyx.core.commands.StatelessAlyxPlugin;
  * Default plugin for managing other plugins in Alyx.
  * This plugin is guarded, and cannot be unloaded without an explicit override.
  *
- * See {@link #AlyxPlugin#isGuarded()} for info.
+ * See {@link AlyxPlugin#isGuarded()} for info.
  */
 public class PluginManagerPlugin extends StatelessAlyxPlugin {
     private static final String NAME = "AlyxPluginManager";
