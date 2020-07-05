@@ -1,9 +1,16 @@
+env:
+  - ARTIFACTS_DIR=$TRAVIS_BUILD_DIR/build/artifacts/
+
 addons:
   artifacts:
-    # ⋮
     paths:
-      - ./build
-      - ./docs/_build
+      - ${ARTIFACTS_DIR}
+    target_paths:
+      - /${TRAVIS_BRANCH}
+      - /${TRAVIS_COMMIT}
+
+before_script:
+  - mkdir -p $ARTIFACTS_DIR
 
 jobs:
   include:
@@ -16,13 +23,18 @@ jobs:
       script:
         - cd docs
         - make html
+      after_script:
+        - cp -R _build/ ${ARTIFACTS_DIR}/docs
     - language: java
       jdk: oraclejdk11
       script: ./gradlew build
+      after_script:
+        - cp -R build/ ${ARTIFACTS_DIR}/build/
     - language: java
       jdk: openjdk11
       script: ./gradlew build
-
+      after_script:
+        - cp -R build/ ${ARTIFACTS_DIR}/build/
 
 after_success:
   - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
