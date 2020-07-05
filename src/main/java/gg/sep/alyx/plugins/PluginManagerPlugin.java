@@ -1,6 +1,6 @@
 package gg.sep.alyx.plugins;
 
-import static gg.sep.alyx.core.commands.CommandConstants.ALYX_PLUGIN_SERIAL;
+import static gg.sep.alyx.plugins.PluginConstants.ALYX_PLUGIN_SERIAL;
 
 import java.util.ArrayList;
 import java.util.List;
