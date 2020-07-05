@@ -18,3 +18,5 @@ sourceControl {
         producesModule("gg.sep:sep-java-build-config")
     }
 }
+
+include 'alyx-core'
