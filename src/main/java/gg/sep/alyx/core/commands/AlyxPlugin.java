@@ -19,14 +19,14 @@ import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.parsers.ParameterParser;
 import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.JsonSerializable;
 
 /**
- * A plugin for {@link AlyxBot}, containing commands and event listeners which can be loaded into a bot instance.
+ * A plugin for {@link Alyx}, containing commands and event listeners which can be loaded into a bot instance.
  *
  * @param <C> The type of the data for this plugin.
  *
@@ -37,7 +37,7 @@ import gg.sep.alyx.model.JsonSerializable;
 public abstract class AlyxPlugin<C extends JsonSerializable> {
     private C pluginData = null;
     @Getter(AccessLevel.PROTECTED)
-    private final AlyxBot alyx;
+    private final Alyx alyx;
     @Getter
     private boolean guarded;
     @Getter
@@ -45,14 +45,14 @@ public abstract class AlyxPlugin<C extends JsonSerializable> {
     @Getter
     private final String name;
 
-    protected AlyxPlugin(final String name, final long serial, final AlyxBot alyx) {
+    protected AlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this.name = name;
         this.alyx = alyx;
         this.identifier = String.format("%s.%s", serial, name);
         this.guarded = false;
     }
 
-    protected AlyxPlugin(final String name, final long serial, final boolean isGuarded, final AlyxBot alyx) {
+    protected AlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
         this(name, serial, alyx);
         this.guarded = isGuarded;
     }
@@ -152,7 +152,7 @@ public abstract class AlyxPlugin<C extends JsonSerializable> {
      *
      * @return Collection of the commands present in this plugin.
      * @throws AlyxException Exception thrown if loading a plugin's commands fails.
-     *                       Usually this happens during the {@link AlyxBot#loadPlugin(AlyxPlugin)}
+     *                       Usually this happens during the {@link Alyx#loadPlugin(AlyxPlugin)}
      *                       execution, and the error should be surfaced to the user.
      */
     public Collection<AlyxCommand> loadCommands() throws AlyxException {

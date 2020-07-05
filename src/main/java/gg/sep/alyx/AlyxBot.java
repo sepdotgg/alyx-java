@@ -104,7 +104,7 @@ public final class AlyxBot implements Alyx {
      * @param botEntry Bot Entry with metadata about the bot and where to find the bot's configuration.
      * @return New instance of Alyx.
      */
-    public static AlyxBot launchBot(final BotEntry botEntry) {
+    public static Alyx launchBot(final BotEntry botEntry) {
         try {
             final AlyxBot alyx = new AlyxBot(botEntry);
             final PluginManagerPlugin pluginManager = new PluginManagerPlugin(alyx);

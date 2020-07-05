@@ -6,7 +6,7 @@ import java.time.Duration;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 import gg.sep.alyx.core.commands.Command;
 import gg.sep.alyx.core.commands.StatelessAlyxPlugin;
 import gg.sep.alyx.core.commands.permissions.PermissionLevel;
@@ -22,7 +22,7 @@ public class AdminCommandsPlugin extends StatelessAlyxPlugin {
      * Initialize the plugin.
      * @param alyx Instance of Alyx.
      */
-    public AdminCommandsPlugin(final AlyxBot alyx) {
+    public AdminCommandsPlugin(final Alyx alyx) {
         super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);
     }
 

@@ -2,7 +2,7 @@ package gg.sep.alyx.core.commands.permissions;
 
 import net.dv8tion.jda.api.entities.User;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 
 /**
  * Permission levels which can be used to determine who is allowed to execute a command.
@@ -43,7 +43,7 @@ public enum PermissionLevel {
      * @param alyx Alyx bot instance.
      * @return Permission level if found, otherwise returns {@link #EVERYONE};
      */
-    public static PermissionLevel getLevel(final User user, final AlyxBot alyx) {
+    public static PermissionLevel getLevel(final User user, final Alyx alyx) {
         if (user.equals(alyx.getBotOwner())) {
             return BOT_OWNER;
         }

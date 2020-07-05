@@ -1,6 +1,6 @@
 package gg.sep.alyx.core.events;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 
 /**
  * The primary bot command listener for Alyx and JDA.
@@ -8,10 +8,10 @@ import gg.sep.alyx.AlyxBot;
 public class AlyxCommandListener extends AbstractAlyxCommandListener {
 
     /**
-     * Creates new listener for the provided {@link AlyxBot} instance.
+     * Creates new listener for the provided {@link Alyx} instance.
      * @param alyx The instance of Alyx which will use this listener.
      */
-    public AlyxCommandListener(final AlyxBot alyx) {
+    public AlyxCommandListener(final Alyx alyx) {
         super(alyx);
     }
 }

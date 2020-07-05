@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.AlyxCommand;
 
@@ -31,7 +31,7 @@ import gg.sep.alyx.core.commands.AlyxCommand;
  */
 @RequiredArgsConstructor
 public abstract class AbstractAlyxCommandListener extends AbstractAlyxListenerAdapter {
-    protected final AlyxBot alyx;
+    protected final Alyx alyx;
 
     /**
      * Catches {@link PrivateMessageReceivedEvent} events and does nothing with them. They will

@@ -1,6 +1,6 @@
 package gg.sep.alyx.core.commands;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 
 /**
  * An abstract class for an {@link AlyxPlugin} which does not need to store
@@ -10,11 +10,11 @@ public abstract class StatelessAlyxPlugin extends AlyxPlugin<NoOpPluginData> {
 
     private static final NoOpPluginData NO_OP_DATA = new NoOpPluginData();
 
-    protected StatelessAlyxPlugin(final String name, final long serial, final AlyxBot alyx) {
+    protected StatelessAlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this(name, serial, false, alyx);
     }
 
-    protected StatelessAlyxPlugin(final String name, final long serial, final boolean isGuarded, final AlyxBot alyx) {
+    protected StatelessAlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
         super(name, serial, isGuarded, alyx);
     }
 

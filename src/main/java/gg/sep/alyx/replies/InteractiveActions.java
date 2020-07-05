@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import gg.sep.alyx.AlyxBot;
+import gg.sep.alyx.Alyx;
 import gg.sep.alyx.core.events.EventWaiter;
 
 /**
@@ -91,7 +91,7 @@ public final class InteractiveActions {
      * @return A future containing the result of a yes/no response (true/false), or {@code null} if
      *         the timeout was reached before a response was received.
      */
-    public static CompletableFuture<Boolean> yesOrNo(final AlyxBot alyx, final MessageReceivedEvent event,
+    public static CompletableFuture<Boolean> yesOrNo(final Alyx alyx, final MessageReceivedEvent event,
                                                      final String message, final Duration timeout) {
 
         final boolean canReact = !event.getChannelType().isGuild() || event.getGuild().getSelfMember()
