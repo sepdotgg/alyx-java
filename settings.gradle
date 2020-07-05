@@ -8,3 +8,13 @@
  */
 
 rootProject.name = 'alyx'
+
+sourceControl {
+    gitRepository("https://github.com/seputaes/result.git") {
+        producesModule("gg.sep:result")
+    }
+
+    gitRepository("https://github.com/seputaes/sep-java-build-config.git") {
+        producesModule("gg.sep:sep-java-build-config")
+    }
+}

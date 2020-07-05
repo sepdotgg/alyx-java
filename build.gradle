@@ -40,7 +40,6 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     mavenCentral()
-    maven { url "https://jitpack.io" }
 }
 
 configurations {
@@ -52,7 +51,7 @@ dependencies {
     implementation "net.dv8tion:JDA:4.+" // JDA for Discord API
     implementation "org.beryx:text-io:3.3.0" // for interactive setup
     implementation "net.harawata:appdirs:1.1.+" // for platform independent application dirs
-    implementation "com.github.Seputaes:result:1.1.1"
+    implementation "gg.sep:result:1.1.1"
     implementation "org.pf4j:pf4j:3.3.+"
 
     // External Utilities and Libraries
@@ -66,7 +65,7 @@ dependencies {
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
     // build dependencies
-    sepBuildConfig "com.github.Seputaes:sep-java-build-config:0.3.0"
+    sepBuildConfig "gg.sep:sep-java-build-config:0.4.0"
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     compileOnly "com.github.spotbugs:spotbugs-annotations:$spotbugsVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
@@ -81,7 +80,7 @@ dependencies {
 
 }
 
-task extractFile(type: Copy) {
+task extractFile(type: Copy, dependsOn: configurations.sepBuildConfig) {
     from {
         zipTree(configurations.sepBuildConfig.singleFile)
     }
