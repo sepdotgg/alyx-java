@@ -16,7 +16,7 @@ RUN apt-get update && \
     apt-get clean
 RUN curl -kL https://bootstrap.pypa.io/get-pip.py | python3
 
-RUN pip3 install sphinx sphinx_rtd_theme recommonmark
+RUN pip3 install sphinx sphinx_rtd_theme
 
 WORKDIR /docs
 VOLUME /docs

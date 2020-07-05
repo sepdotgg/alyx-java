@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Alyx'
-copyright = '2020, sep'
-author = 'sep'
+copyright = '2020 sep.gg'
+author = 'sep.gg'
 
 # The full version, including alpha/beta/rc tags
 release = '0.0.1'
@@ -31,7 +31,6 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'recommonmark'
 ]
 
 # Override default RTD master doc
