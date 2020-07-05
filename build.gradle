@@ -75,16 +75,8 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 
     // Use Mockito for Testing
-    testCompile "org.mockito:mockito-core:3.3.+"
+    testImplementation "org.mockito:mockito-core:3.3.+"
 
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs 'src/main/resources'
-        }
-    }
 }
 
 task extractFile(type: Copy) {
@@ -98,7 +90,7 @@ task extractFile(type: Copy) {
 checkstyle {
     ignoreFailures false
     configFile file("${buildDir}/configuration/checkstyle/checkstyle.xml")
-    configDir file("${buildDir}/configuration/checkstyle")
+    configDirectory = file("${buildDir}/configuration/checkstyle")
     toolVersion checkstyleVersion
 }
 checkstyleMain.dependsOn extractFile
