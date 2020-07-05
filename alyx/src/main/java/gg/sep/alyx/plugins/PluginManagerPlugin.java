@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import gg.sep.alyx.plugin.Alyx;
 import gg.sep.alyx.plugin.AlyxException;
 import gg.sep.alyx.plugin.AlyxPlugin;
-import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.StatelessAlyxPlugin;
+import gg.sep.alyx.plugin.commands.Command;
 
 /**
  * Default plugin for managing other plugins in Alyx.

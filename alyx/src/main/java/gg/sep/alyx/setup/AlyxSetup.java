@@ -18,10 +18,10 @@ import org.beryx.textio.TextIO;
 import org.beryx.textio.TextTerminal;
 
 import gg.sep.alyx.config.ConfigHandler;
-import gg.sep.alyx.plugin.storage.StorageType;
 import gg.sep.alyx.plugin.model.AlyxConfig;
 import gg.sep.alyx.plugin.model.BotConfig;
 import gg.sep.alyx.plugin.model.BotEntry;
+import gg.sep.alyx.plugin.storage.StorageType;
 import gg.sep.result.Err;
 import gg.sep.result.Ok;
 import gg.sep.result.Result;

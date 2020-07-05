@@ -19,4 +19,8 @@ sourceControl {
     }
 }
 
+include ':alyx-core'
+include ':alyx'
+include 'alyx'
 include 'alyx-core'
+

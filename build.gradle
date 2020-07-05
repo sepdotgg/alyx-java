@@ -1,13 +1,23 @@
 plugins {
     id 'checkstyle'
-    id "com.github.spotbugs" version "4.4.4"
+    id 'com.github.spotbugs' version "4.4.4"
     id 'jacoco'
+
+    id 'io.franzbecker.gradle-lombok' version '4.0.0'
+    id 'com.github.ben-manes.versions' version "0.28.0"
 }
 
 version = '1.0-SNAPSHOT'
 
+// these need to be applied here for some subproject config to work
+// since we have mixed java plugins, we can't apply it in the subprojects
+project(':alyx') {
+    apply plugin: 'java'
+    apply plugin: 'application'
+}
+
 project(':alyx-core') {
-    apply plugin: 'java' // TODO: java-library
+    apply plugin: 'java-library'
 }
 
 subprojects {
@@ -36,6 +46,8 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'com.github.spotbugs'
     apply plugin: 'jacoco'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'com.github.ben-manes.versions'
 
 }
 
