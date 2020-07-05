@@ -7,7 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
-import gg.sep.alyx.plugin.storage.AbstractJsonObject;
+import gg.sep.alyx.core.plugin.storage.AbstractJsonObject;
 
 /**
  * Utility for parsing JSON strings into one of our model classes, and handles JSON exceptions.

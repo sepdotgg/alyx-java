@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import gg.sep.alyx.plugin.storage.StorageType;
+import gg.sep.alyx.core.plugin.storage.StorageType;
 
 /**
  * Tests for {@link StorageType}.

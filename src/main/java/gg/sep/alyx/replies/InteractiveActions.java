@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
-import gg.sep.alyx.Alyx;
+import gg.sep.alyx.core.Alyx;
 import gg.sep.alyx.core.events.EventWaiter;
 
 /**

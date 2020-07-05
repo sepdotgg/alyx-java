@@ -1,6 +1,6 @@
 package gg.sep.alyx.core.events;
 
-import gg.sep.alyx.Alyx;
+import gg.sep.alyx.core.Alyx;
 
 /**
  * The primary bot command listener for Alyx and JDA.

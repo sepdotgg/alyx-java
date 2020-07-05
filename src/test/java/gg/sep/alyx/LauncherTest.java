@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-import gg.sep.alyx.core.config.ConfigHandler;
-import gg.sep.alyx.model.config.AlyxConfig;
-import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.config.ConfigHandler;
+import gg.sep.alyx.core.model.AlyxConfig;
+import gg.sep.alyx.core.model.BotEntry;
 import gg.sep.result.Result;
 
 /**

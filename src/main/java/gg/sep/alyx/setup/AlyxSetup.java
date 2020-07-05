@@ -17,11 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextTerminal;
 
-import gg.sep.alyx.core.config.ConfigHandler;
-import gg.sep.alyx.plugin.storage.StorageType;
-import gg.sep.alyx.model.config.AlyxConfig;
-import gg.sep.alyx.model.config.BotConfig;
-import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.config.ConfigHandler;
+import gg.sep.alyx.core.plugin.storage.StorageType;
+import gg.sep.alyx.core.model.AlyxConfig;
+import gg.sep.alyx.core.model.BotConfig;
+import gg.sep.alyx.core.model.BotEntry;
 import gg.sep.result.Err;
 import gg.sep.result.Ok;
 import gg.sep.result.Result;

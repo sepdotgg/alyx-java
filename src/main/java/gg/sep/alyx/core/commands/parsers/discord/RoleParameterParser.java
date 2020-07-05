@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.Event;
 
-import gg.sep.alyx.plugin.CommandParseException;
-import gg.sep.alyx.util.Strings;
+import gg.sep.alyx.core.plugin.CommandParseException;
+import gg.sep.alyx.core.plugin.util.Strings;
 
 /**
  * Handles parsing of String parameters into Discord Roles.
