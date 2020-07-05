@@ -55,7 +55,7 @@ public final class Launcher {
             errorExit(botEntry.unwrapErr());
         }
 
-        Alyx.launchBot(botEntry.unwrap());
+        AlyxBot.launchBot(botEntry.unwrap());
     }
 
     /**

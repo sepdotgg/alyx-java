@@ -7,7 +7,7 @@ import java.util.List;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.Alyx;
+import gg.sep.alyx.AlyxBot;
 import gg.sep.alyx.AlyxException;
 import gg.sep.alyx.core.commands.AlyxPlugin;
 import gg.sep.alyx.core.commands.Command;
@@ -26,7 +26,7 @@ public class PluginManagerPlugin extends StatelessAlyxPlugin {
      * Initializes a new instance of the Plugin Manager Plugin.
      * @param alyx Instance of Alyx which will use this plugin.
      */
-    public PluginManagerPlugin(final Alyx alyx) {
+    public PluginManagerPlugin(final AlyxBot alyx) {
         super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);
     }
 
