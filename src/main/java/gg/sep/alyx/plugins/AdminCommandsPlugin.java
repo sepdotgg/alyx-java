@@ -6,10 +6,10 @@ import java.time.Duration;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.core.Alyx;
-import gg.sep.alyx.core.plugin.commands.Command;
-import gg.sep.alyx.core.plugin.StatelessAlyxPlugin;
-import gg.sep.alyx.core.plugin.commands.PermissionLevel;
+import gg.sep.alyx.plugin.Alyx;
+import gg.sep.alyx.plugin.commands.Command;
+import gg.sep.alyx.plugin.StatelessAlyxPlugin;
+import gg.sep.alyx.plugin.commands.PermissionLevel;
 import gg.sep.alyx.replies.InteractiveActions;
 
 /**

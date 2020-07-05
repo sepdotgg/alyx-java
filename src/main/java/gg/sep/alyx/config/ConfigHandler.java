@@ -11,9 +11,9 @@ import lombok.extern.log4j.Log4j2;
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 
-import gg.sep.alyx.core.model.AlyxConfig;
-import gg.sep.alyx.core.model.BotConfig;
-import gg.sep.alyx.core.model.BotEntry;
+import gg.sep.alyx.plugin.model.AlyxConfig;
+import gg.sep.alyx.plugin.model.BotConfig;
+import gg.sep.alyx.plugin.model.BotEntry;
 import gg.sep.alyx.util.ModelParser;
 
 /**

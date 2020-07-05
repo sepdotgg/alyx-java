@@ -13,9 +13,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import gg.sep.alyx.core.plugin.storage.StorageType;
-import gg.sep.alyx.core.model.AlyxConfig;
-import gg.sep.alyx.core.model.BotEntry;
+import gg.sep.alyx.plugin.storage.StorageType;
+import gg.sep.alyx.plugin.model.AlyxConfig;
+import gg.sep.alyx.plugin.model.BotEntry;
 
 /**
  * Tests for {@link ConfigHandler}.

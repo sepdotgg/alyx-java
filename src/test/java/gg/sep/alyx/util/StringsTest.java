@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import gg.sep.alyx.core.plugin.util.Strings;
+import gg.sep.alyx.plugin.util.Strings;
 
 /**
  * Unit tests for {@link Strings}.
