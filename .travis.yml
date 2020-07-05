@@ -19,6 +19,8 @@ jobs:
       <<: *java_build
     - jdk: openjdk13
       <<: *java_build
+    - jdk: openjdk14
+      <<: *java_build
 
 
 after_success:
