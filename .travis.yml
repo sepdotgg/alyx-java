@@ -1,3 +1,7 @@
+_java_build: &java_build
+  language: java
+  script: ./gradlew build
+
 jobs:
   include:
     - stage: "Build"
@@ -9,12 +13,12 @@ jobs:
       script:
         - cd docs
         - make html
-    - language: java
-      jdk: oraclejdk11
-      script: ./gradlew build
-    - language: java
-      jdk: openjdk11
-      script: ./gradlew build
+    - jdk: oraclejdk11
+      <<: *java_build
+    - jdk: openjdk11
+      <<: *java_build
+    - jdk: openjdk13
+      <<: *java_build
 
 
 after_success:
