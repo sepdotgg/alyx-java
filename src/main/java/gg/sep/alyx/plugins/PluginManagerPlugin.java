@@ -1,4 +1,4 @@
-package gg.sep.alyx.core.commands.plugins;
+package gg.sep.alyx.plugins;
 
 import static gg.sep.alyx.core.commands.CommandConstants.ALYX_PLUGIN_SERIAL;
 
