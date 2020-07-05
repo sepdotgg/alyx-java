@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
@@ -34,6 +35,7 @@ public final class AlyxCommand {
     @Setter private boolean guildOnly;
 
     private final String name;
+    @Getter
     private final List<List<String>> commandChain;
     private final List<ParameterParser<?>> parsers;
 

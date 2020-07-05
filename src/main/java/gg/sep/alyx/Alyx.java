@@ -34,14 +34,14 @@ import gg.sep.alyx.core.commands.parsers.discord.ChannelParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.EmoteParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.RoleParameterParser;
 import gg.sep.alyx.core.commands.parsers.discord.UserParameterParser;
-import gg.sep.alyx.plugins.AdminCommandsPlugin;
-import gg.sep.alyx.plugins.PluginManagerPlugin;
 import gg.sep.alyx.core.config.ConfigHandler;
-import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.core.events.AlyxCommandListener;
 import gg.sep.alyx.core.events.EventWaiter;
+import gg.sep.alyx.core.storage.json.JsonStorageEngine;
 import gg.sep.alyx.model.config.BotConfig;
 import gg.sep.alyx.model.config.BotEntry;
+import gg.sep.alyx.plugins.AdminCommandsPlugin;
+import gg.sep.alyx.plugins.PluginManagerPlugin;
 
 /**
  * The Alyx bot instance.
@@ -51,6 +51,7 @@ public final class Alyx {
     @Getter
     private final BotEntry botEntry;
     private final BotConfig botConfig;
+    private final AlyxCommandListener commandListener;
     private volatile boolean isShutdown = false;
 
     @Getter private final JDA jda;
@@ -76,10 +77,11 @@ public final class Alyx {
         this.botEntry = botEntry;
         this.botConfig = loadBotConfig(botEntry);
         this.commandPrefix = botConfig.getCommandPrefix().toString();
-        this.eventWaiter = new EventWaiter();
+        this.eventWaiter = new EventWaiter(botEntry.getBotName());
+        this.commandListener = new AlyxCommandListener(this);
 
         this.jda = JDABuilder.createDefault(botConfig.getDiscordToken())
-            .addEventListeners(new AlyxCommandListener(this))
+            .addEventListeners(this.commandListener)
             .addEventListeners(eventWaiter)
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
             .setAutoReconnect(true)
@@ -149,11 +151,18 @@ public final class Alyx {
      * Shuts down this instance of Alyx.
      */
     public synchronized void shutdown() {
+        // don't run the shutdown process twice
         if (isShutdown) {
             log.error("Attempted to shut down an already shut down bot.");
             return;
         }
+        this.isShutdown = true;
 
+        // stop listening for new commands
+        this.commandListener.setListening(false);
+
+        // tell plugins that we're shutting down
+        // they have 30 seconds to complete and should respond asynchronously
         final List<AlyxPlugin<?>> currentPlugins = new ArrayList<>(this.getRegisteredPlugins());
         final Map<AlyxPlugin<?>, CompletableFuture<?>> futureMap = new HashMap<>();
 
@@ -164,6 +173,7 @@ public final class Alyx {
         final CompletableFuture<Void> allShutdown = CompletableFuture.allOf(futureMap.values()
             .toArray(new CompletableFuture[0]));
 
+        // confirm plugins are shut down
         allShutdown.exceptionally(throwable -> {
             // find the plugins that failed
             for (final Map.Entry<AlyxPlugin<?>, CompletableFuture<?>> entry : futureMap.entrySet()) {
@@ -175,8 +185,16 @@ public final class Alyx {
             return null;
         }).join();
 
-        this.jda.shutdownNow();
-        this.isShutdown = true;
+        // shutdown anything in EventWaiter
+        this.eventWaiter.shutdown(60, TimeUnit.SECONDS).handle((result, throwable) -> {
+            if (!result || throwable != null) {
+                log.error("Failed to shut down all EventWaiter tasks. This may result in additional errors.", throwable);
+            }
+            return result;
+        }).join(); // block
+
+        // don't shutdown JDA until we know it's safe or the timeout has been reached
+        this.jda.shutdown();
     }
 
     /**

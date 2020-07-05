@@ -1,6 +1,7 @@
 package gg.sep.alyx.core.events;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import gg.sep.alyx.core.commands.AlyxCommand;
  * See {@link ListenerAdapter} for details of what can be listened to.
  */
 @RequiredArgsConstructor
-public abstract class AbstractAlyxCommandListener extends ListenerAdapter {
+public abstract class AbstractAlyxCommandListener extends AbstractAlyxListenerAdapter {
     protected final Alyx alyx;
 
     /**
@@ -58,15 +59,38 @@ public abstract class AbstractAlyxCommandListener extends ListenerAdapter {
      */
     @Override
     public final void onMessageReceived(final MessageReceivedEvent event) {
+        if (!isListening()) {
+            return;
+        }
+
         final String rawMessage = event.getMessage().getContentRaw();
         if (rawMessage.startsWith(alyx.getCommandPrefix())) {
             final String cmd = removeBotCommandPrefix(rawMessage);
-            final Optional<AlyxCommand> commandHandler = this.alyx.getCommandsList().stream()
+
+            final List<AlyxCommand> matchingCommands = this.alyx.getCommandsList().stream()
                 .filter(command -> command.matches(cmd))
-                .findFirst();
-            if (commandHandler.isPresent()) {
+                .collect(Collectors.toList());
+
+            // if there's more than one command, choose the one with the longest command chain
+            AlyxCommand executeCommand = null;
+            if (matchingCommands.size() > 1) {
+                int longest = 0;
+                AlyxCommand longestCommand = null;
+
+                for (final AlyxCommand command : matchingCommands) {
+                    if (command.getCommandChain().size() > longest) {
+                        longest = command.getCommandChain().size();
+                        longestCommand = command;
+                    }
+                }
+                executeCommand = longestCommand;
+            } else if (!matchingCommands.isEmpty()) {
+                executeCommand = matchingCommands.get(0);
+            }
+
+            if (executeCommand != null) {
                 try {
-                    commandHandler.get().invoke(event, cmd);
+                    executeCommand.invoke(event, cmd);
                 } catch (final AlyxException e) {
                     event.getMessage().addReaction("❌").queue();
                     // TODO: This may contain private information.
