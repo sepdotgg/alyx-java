@@ -13,10 +13,11 @@ Contents
    self_hosting/installation
 
 .. toctree::
-   :caption: Writing Plugins
+   :caption: Plugin Framework
    :maxdepth: 2
 
-   writing_plugins/introduction
+   plugin_framework/index
+   plugin_framework/commands
 
 License
 ===================

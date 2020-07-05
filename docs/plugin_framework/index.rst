@@ -72,6 +72,7 @@ yourself across all Alyx plugins.
 
 Our plugin's constructor must **exclusively** accept ``Alyx`` as a parameter.
 
-
+Finally, we define a command which will be intercepted by the plugin and acted upon.
+See the :doc:`Defining Commands <./commands>`  section for full details.
 
 .. _pf4j: https://github.com/pf4j/pf4j
