@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventWaiter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alyx-core</a> &gt; <a href="index.source.html" class="el_package">gg.sep.alyx.plugin.events</a> &gt; <span class="el_source">EventWaiter.java</span></div><h1>EventWaiter.java</h1><pre class="source lang-java linenums">package gg.sep.alyx.plugin.events;
+
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
+/**
+ * The {@link EventWaiter} class provides an asynchronous method
+ * to wait for certain Discord events to fire which meet a certain condition.
+ */
+<span class="nc" id="L29">@Log4j2</span>
+public class EventWaiter implements EventListener {
+
+    private static final long THREAD_CHECK_INTERVAL = 50;
+
+    private final ExecutorService executorService;
+
+<span class="nc" id="L36">    private final Map&lt;Class&lt;? extends GenericEvent&gt;, Collection&lt;EventTask&gt;&gt; runningTasks =</span>
+        new ConcurrentHashMap&lt;&gt;();
+
+    /**
+     * Constructs a new instances of an Event Waiter.
+     * @param identifier Identifier used to name the threads spawned by this Event Waiter. A good
+     *                  practices is to use the Bot's name.
+     */
+<span class="nc" id="L44">    public EventWaiter(final String identifier) {</span>
+
+<span class="nc" id="L46">        final ThreadFactory threadFactory = new BasicThreadFactory.Builder()</span>
+<span class="nc" id="L47">            .namingPattern(&quot;EventWaiter-&quot; + identifier + &quot;-%d&quot;)</span>
+<span class="nc" id="L48">            .daemon(true)</span>
+<span class="nc" id="L49">            .build();</span>
+
+        // TODO: Revisit this since this may be a bottleneck for large bot instances
+<span class="nc" id="L52">        this.executorService = Executors.newFixedThreadPool(8, threadFactory);</span>
+<span class="nc" id="L53">    }</span>
+
+    @RequiredArgsConstructor
+    private static final class EventTask&lt;T, R&gt; {
+        private final Predicate&lt;T&gt; condition;
+        private final Function&lt;T, R&gt; completedAction;
+        private volatile boolean completed;
+        private volatile R result = null;
+
+        private synchronized boolean check(final T event) {
+<span class="nc" id="L63">            final boolean check = condition.test(event);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (check) {</span>
+<span class="nc" id="L65">                completed = true;</span>
+<span class="nc" id="L66">                result = completedAction.apply(event);</span>
+<span class="nc" id="L67">                return true;</span>
+            }
+<span class="nc" id="L69">            return false;</span>
+        }
+
+        private synchronized boolean isCompleted() {
+<span class="nc" id="L73">            return completed;</span>
+        }
+
+        private synchronized R getResult() {
+<span class="nc" id="L77">            return result;</span>
+        }
+    }
+
+    /**
+     * Wait for a Discord event of type {@code T} to fire which matches the given {@code predicate}.
+     *
+     * If the predicate is successful, {@code callback} is triggered in order to return the result.
+     *
+     * If the timeout was reached without the event being fired, the contents of the result
+     * will be {@code null}. Your calling function will need to handle this case appropriately.
+     *
+     * @param clazz The class of the Discord event, extending from {@link GenericEvent}.
+     * @param condition The condition to check against the event in order to determine if
+     *                  the event completed.
+     * @param completedCallback Callback to execute on the event once the wait is completed.
+     * @param timeout Maximum duration to wait for the event to be completed.
+     * @param &lt;T&gt; The type of the Discord event.
+     * @param &lt;R&gt; The type of result that is returned once the {@code callback} is applied to the event.
+     * @return Asynchronous future containing the result of the {@code callback} applied to the event.
+     */
+    public &lt;T extends GenericEvent, R&gt; CompletableFuture&lt;R&gt; waitForEvent(final Class&lt;T&gt; clazz,
+                                                                         final Predicate&lt;T&gt; condition,
+                                                                         final Function&lt;T, R&gt; completedCallback,
+                                                                         final Duration timeout) {
+
+<span class="nc" id="L103">        final EventTask&lt;T, R&gt; eventTask = new EventTask&lt;&gt;(condition, completedCallback);</span>
+<span class="nc" id="L104">        final Collection&lt;EventTask&gt; currentTasks = runningTasks.computeIfAbsent(clazz,</span>
+<span class="nc" id="L105">            key -&gt; ConcurrentHashMap.newKeySet());</span>
+<span class="nc" id="L106">        currentTasks.add(eventTask);</span>
+
+<span class="nc" id="L108">        final Supplier&lt;R&gt; supplier = () -&gt; {</span>
+<span class="nc" id="L109">            final long startTime = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            while (System.currentTimeMillis() - startTime &lt; timeout.toMillis()) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (eventTask.isCompleted()) {</span>
+<span class="nc" id="L112">                    break;</span>
+                }
+                try {
+<span class="nc" id="L115">                    Thread.sleep(THREAD_CHECK_INTERVAL);</span>
+<span class="nc" id="L116">                } catch (final InterruptedException e) {</span>
+<span class="nc" id="L117">                    Thread.currentThread().interrupt();</span>
+<span class="nc" id="L118">                }</span>
+
+            }
+<span class="nc" id="L121">            currentTasks.remove(eventTask);</span>
+<span class="nc" id="L122">            return eventTask.getResult();</span>
+        };
+
+<span class="nc" id="L125">        return CompletableFuture.supplyAsync(supplier, executorService);</span>
+    }
+
+    /**
+     * Triggers on all Discord events that the bot receives in order to determine if
+     * the event matches any events waiting.
+     *
+     * @param event Discord event.
+     */
+    @Override
+    @SubscribeEvent
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void onEvent(final GenericEvent event) {
+<span class="nc" id="L138">        final Collection&lt;EventTask&gt; tasks = runningTasks.get(event.getClass());</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (tasks != null) {</span>
+<span class="nc" id="L141">            final Collection&lt;EventTask&gt; finishedTasks = tasks.stream()</span>
+<span class="nc" id="L142">                .filter(task -&gt; task.check((event)))</span>
+<span class="nc" id="L143">                .collect(Collectors.toList());</span>
+<span class="nc" id="L144">            tasks.removeAll(finishedTasks);</span>
+        }
+<span class="nc" id="L146">    }</span>
+
+    /**
+     * Tells the EventWaiter to reject new tasks and wait for all running tasks to finish, up to
+     * the timeout specified in {@code timeout}/{@code unit}.
+     *
+     * @param timeout The maximum time to wait
+     * @param unit The time unit of the timeout argument
+     * @return {@code true} if this executor terminated successfully and
+     *         {@code false} if the timeout elapsed before termination
+     */
+    public CompletableFuture&lt;Boolean&gt; shutdown(final long timeout, final TimeUnit unit) {
+<span class="nc" id="L158">        final AtomicBoolean result = new AtomicBoolean(false);</span>
+<span class="nc" id="L159">        return CompletableFuture.runAsync(() -&gt; {</span>
+<span class="nc" id="L160">            this.executorService.shutdown();</span>
+            try {
+<span class="nc" id="L162">                result.set(this.executorService.awaitTermination(timeout, unit));</span>
+<span class="nc" id="L163">            } catch (final InterruptedException e) {</span>
+<span class="nc" id="L164">                Thread.currentThread().interrupt();</span>
+<span class="nc" id="L165">                result.set(false);</span>
+<span class="nc" id="L166">            }</span>
+<span class="nc" id="L167">        }).thenApply(f -&gt; result.get());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

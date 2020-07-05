@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PluginManagerPlugin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alyx-core</a> &gt; <a href="index.source.html" class="el_package">gg.sep.alyx.plugins</a> &gt; <span class="el_source">PluginManagerPlugin.java</span></div><h1>PluginManagerPlugin.java</h1><pre class="source lang-java linenums">package gg.sep.alyx.plugins;
+
+import static gg.sep.alyx.plugins.PluginConstants.ALYX_PLUGIN_SERIAL;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import gg.sep.alyx.plugin.Alyx;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.AlyxPlugin;
+import gg.sep.alyx.plugin.commands.Command;
+import gg.sep.alyx.plugin.StatelessAlyxPlugin;
+
+/**
+ * Default plugin for managing other plugins in Alyx.
+ * This plugin is guarded, and cannot be unloaded without an explicit override.
+ *
+ * See {@link AlyxPlugin#isGuarded()} for info.
+ */
+public class PluginManagerPlugin extends StatelessAlyxPlugin {
+    private static final String NAME = &quot;AlyxPluginManager&quot;;
+
+    /**
+     * Initializes a new instance of the Plugin Manager Plugin.
+     * @param alyx Instance of Alyx which will use this plugin.
+     */
+    public PluginManagerPlugin(final Alyx alyx) {
+<span class="nc" id="L30">        super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);</span>
+<span class="nc" id="L31">    }</span>
+
+    /**
+     * Lists the currently registered plugins in this bot's instance.
+     *
+     * @param event The message event which triggered the command.
+     */
+    @Command(name = &quot;plugins&quot;)
+    @Command(name = &quot;list&quot;)
+    public void listPlugins(final MessageReceivedEvent event) {
+<span class="nc" id="L41">        final List&lt;String&gt; lines = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L43">        getAlyx().getRegisteredPlugins()</span>
+<span class="nc" id="L44">            .forEach(plugin -&gt; {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                final String pluginPrefix = plugin.isLoaded() ? &quot;✅&quot; : &quot;❌&quot;;</span>
+<span class="nc" id="L46">                lines.add(pluginPrefix + &quot; &quot; + plugin.getName());</span>
+<span class="nc" id="L47">            });</span>
+
+<span class="nc" id="L49">        final String response = String.join(&quot;\n&quot;, lines);</span>
+<span class="nc" id="L50">        event.getChannel().sendMessage(response).queue();</span>
+<span class="nc" id="L51">    }</span>
+
+    /**
+     * Loads the specified registered plugin into this Alyx instance.
+     *
+     * @param event The message event which triggered the command.
+     * @param pluginName The name of the plugin.
+     * @throws AlyxException Exception thrown if loading a plugin fails.
+     */
+    @Command(name = &quot;plugins&quot;)
+    @Command(name = &quot;load&quot;)
+    public void loadPlugin(final MessageReceivedEvent event, final String pluginName) throws AlyxException {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (final AlyxPlugin&lt;?&gt; plugin : getAlyx().getRegisteredPlugins()) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (pluginName.trim().equals(plugin.getName())) {</span>
+<span class="nc" id="L65">                getAlyx().loadPlugin(plugin);</span>
+<span class="nc" id="L66">                event.getMessage().addReaction(&quot;✅&quot;).queue();</span>
+<span class="nc" id="L67">                return;</span>
+            }
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">        event.getMessage().addReaction(&quot;❌&quot;).queue();</span>
+<span class="nc" id="L71">        event.getMessage().getChannel().sendMessage(&quot;No plugin with that name was found.&quot;).queue();</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * Unloads the specified registered plugin from this Alyx instance.
+     *
+     * @param event The message event which triggered the command.
+     * @param pluginName The name of the plugin.
+     * @throws AlyxException Thrown if unloading the plugin failed (eg, it is guarded or not registered).
+     */
+    @Command(name = &quot;plugins&quot;)
+    @Command(name = &quot;unload&quot;)
+    public void unloadPlugin(final MessageReceivedEvent event, final String pluginName) throws AlyxException {
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (final AlyxPlugin&lt;?&gt; plugin : getAlyx().getRegisteredPlugins()) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (pluginName.trim().equals(plugin.getName())) {</span>
+<span class="nc" id="L87">                getAlyx().unloadPlugin(plugin);</span>
+<span class="nc" id="L88">                event.getMessage().addReaction(&quot;✅&quot;).queue();</span>
+<span class="nc" id="L89">                return;</span>
+            }
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">        event.getMessage().addReaction(&quot;❌&quot;).queue();</span>
+<span class="nc" id="L93">        event.getMessage().getChannel().sendMessage(&quot;No plugin with that name was found.&quot;).queue();</span>
+<span class="nc" id="L94">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

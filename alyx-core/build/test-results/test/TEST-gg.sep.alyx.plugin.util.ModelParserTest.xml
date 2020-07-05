@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gg.sep.alyx.plugin.util.ModelParserTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2020-07-05T22:37:34" hostname="Adams-MacBook-Pro.local" time="0.013">
+  <properties/>
+  <testcase name="parseJson_Valid(String, Class, Object)[1]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.0"/>
+  <testcase name="parseJson_Valid(String, Class, Object)[2]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.0"/>
+  <testcase name="parseJson_Valid(String, Class, Object)[3]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.001"/>
+  <testcase name="parseJson_Valid(String, Class, Object)[4]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.001"/>
+  <testcase name="parseJson_Valid(String, Class, Object)[5]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.001"/>
+  <testcase name="parseJson_Invalid(String)[1]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.004"/>
+  <testcase name="parseJson_Invalid(String)[2]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.001"/>
+  <testcase name="parseJson_Invalid(String)[3]" classname="gg.sep.alyx.plugin.util.ModelParserTest" time="0.0"/>
+  <system-out><![CDATA[07-05-2020 15:37:34,603 [ERROR] ModelParser:parseJson@35 - Error parsing JSON into models. class=class java.lang.Object, error=com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Expected value at line 1 column 1 path $
+07-05-2020 15:37:34,605 [ERROR] ModelParser:parseJson@35 - Error parsing JSON into models. class=class java.lang.Object, error=com.google.gson.JsonSyntaxException: java.io.EOFException: End of input at line 1 column 2 path $.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlyxSetup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alyx-core</a> &gt; <a href="index.source.html" class="el_package">gg.sep.alyx.setup</a> &gt; <span class="el_source">AlyxSetup.java</span></div><h1>AlyxSetup.java</h1><pre class="source lang-java linenums">package gg.sep.alyx.setup;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import javax.security.auth.login.LoginException;
+
+import lombok.Builder;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.beryx.textio.TextIO;
+import org.beryx.textio.TextTerminal;
+
+import gg.sep.alyx.config.ConfigHandler;
+import gg.sep.alyx.plugin.storage.StorageType;
+import gg.sep.alyx.plugin.model.AlyxConfig;
+import gg.sep.alyx.plugin.model.BotConfig;
+import gg.sep.alyx.plugin.model.BotEntry;
+import gg.sep.result.Err;
+import gg.sep.result.Ok;
+import gg.sep.result.Result;
+
+/**
+ * Utility class for executing the initial Alyx configuration setups.
+ */
+@Builder
+<span class="nc" id="L33">@Log4j2</span>
+public class AlyxSetup {
+
+    private ConfigHandler configHandler;
+    private Path defaultDataDir;
+    private TextIO textIO;
+
+<span class="nc" id="L40">    private static final Character COMMAND_PREFIX_DEFAULT = '!';</span>
+
+    private static final String HEADER =
+        &quot;    ⣶⣶⣶⣶⡆\n&quot; +
+        &quot;    ⠛⠛⢻⣿⣿⡀             WELCOME TO ALYX\n&quot; +
+        &quot;      ⢀⣿⣿⣷             ________________\n&quot; +
+        &quot;     ⢀⣾⣿⣿⣿⣇\n&quot; +
+        &quot;    ⢠⣿⣿⡟⢹⣿⣿⡆           Discord Bot written in Java\n&quot; +
+        &quot;   ⣰⣿⣿⠏⠀⠀⢻⣿⣿⡄\n&quot; +
+        &quot;  ⣴⣿⡿⠃⠀⠀⠀⠈⢿⣿⣷⣤⣤⡆      GitHub: https://github.com/seputaes/alyx\n&quot; +
+        &quot; ⠾⠿⠿⠁⠀⠀⠀⠀⠀⠘⣿⣿⡿⠿⠛\n\n\n&quot;;
+
+    /**
+     * Starts the Setup process using the supplied configuration and data directories passed in the constructor.
+     * @return A {@link Result} with the created config {@link BotEntry} record if successful, or a string error
+     *         if failure.
+     */
+    public Result&lt;BotEntry, String&gt; startSetup() {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (Files.isDirectory(configHandler.getConfigPath())) {</span>
+<span class="nc" id="L59">            return Err.of(&quot;The config file must be a file, not a directory.&quot;);</span>
+        }
+        // check if we should generate a new config file
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        if (Files.exists(configHandler.getConfigPath()) &amp;&amp; !Files.isWritable(configHandler.getConfigPath())) {</span>
+<span class="nc" id="L63">            return Err.of(&quot;We do not have permission to write to that config file.&quot;);</span>
+        }
+
+        try {
+            // write a new file if it doesn't exist
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (!Files.exists(configHandler.getConfigPath())) {</span>
+<span class="nc" id="L69">                configHandler.writeConfig(AlyxConfig.empty());</span>
+            }
+            // load the config file back up
+<span class="nc" id="L72">            final AlyxConfig alyxConfig = configHandler.loadAlyxConfig().orElseThrow(() -&gt;</span>
+<span class="nc" id="L73">                new IOException(&quot;Failed to load the config file: &quot; + configHandler.getConfigPath()));</span>
+
+<span class="nc" id="L75">            final Result&lt;BotEntry, String&gt; setupSteps = performSetupSteps(alyxConfig);</span>
+<span class="nc" id="L76">            textIO.dispose();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (setupSteps.isErr()) {</span>
+<span class="nc" id="L78">                return setupSteps;</span>
+            }
+<span class="nc" id="L80">            configHandler.updateBotEntry(setupSteps.unwrap());</span>
+<span class="nc" id="L81">            return Ok.of(setupSteps.unwrap());</span>
+
+<span class="nc" id="L83">        } catch (final IOException e) {</span>
+<span class="nc" id="L84">            return Err.of(&quot;Error during setup: &quot; + e);</span>
+        } finally {
+<span class="nc" id="L86">            textIO.dispose();</span>
+        }
+    }
+
+    private Result&lt;BotEntry, String&gt; performSetupSteps(final AlyxConfig alyxConfig) {
+<span class="nc" id="L91">        welcomeSetup(textIO.getTextTerminal());</span>
+
+<span class="nc" id="L93">        final String botName = botName();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (alyxConfig.getBots().containsKey(botName)) {</span>
+            // duplicate bot exists, confirm that we want to overwrite
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (!confirmOverwriteBot()) {</span>
+<span class="nc" id="L97">                textIO.getTextTerminal().println(&quot;Exiting setup mode.&quot;);</span>
+<span class="nc" id="L98">                textIO.getTextTerminal().dispose();</span>
+<span class="nc" id="L99">                return Err.of(&quot;Exited setup mode before completion&quot;);</span>
+            }
+        }
+<span class="nc" id="L102">        final char botCmdPrefix = botPrefix();</span>
+
+<span class="nc" id="L104">        final StorageType storageType = storageType();</span>
+<span class="nc" id="L105">        textIO.getTextTerminal().println();</span>
+
+        // get the config location
+<span class="nc" id="L108">        final Path configDirPath = configDirPath();</span>
+<span class="nc" id="L109">        final boolean confirmConfigDirPath = confirmConfigDirPath(configDirPath);</span>
+<span class="nc" id="L110">        textIO.getTextTerminal().println();</span>
+
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (!confirmConfigDirPath) {</span>
+<span class="nc" id="L113">            textIO.getTextTerminal().println(&quot;Exiting setup mode.&quot;);</span>
+<span class="nc" id="L114">            textIO.getTextTerminal().dispose();</span>
+<span class="nc" id="L115">            return Err.of(&quot;Exited setup mode before completion&quot;);</span>
+        }
+
+<span class="nc" id="L118">        final String discordToken = discordToken();</span>
+<span class="nc" id="L119">        final BotEntry botEntry = BotEntry.builder()</span>
+<span class="nc" id="L120">            .botName(botName)</span>
+<span class="nc" id="L121">            .storageType(storageType)</span>
+<span class="nc" id="L122">            .dataDir(configDirPath)</span>
+<span class="nc" id="L123">            .build();</span>
+        // write the default bot config
+<span class="nc" id="L125">        final BotConfig defaultBotConfig = BotConfig.builder()</span>
+<span class="nc" id="L126">            .botName(botName)</span>
+<span class="nc" id="L127">            .commandPrefix(botCmdPrefix)</span>
+<span class="nc" id="L128">            .discordToken(discordToken)</span>
+<span class="nc" id="L129">            .build();</span>
+        try {
+<span class="nc" id="L131">            configHandler.updateBotConfig(botEntry, defaultBotConfig);</span>
+<span class="nc" id="L132">        } catch (final IOException e) {</span>
+<span class="nc" id="L133">            return Err.of(e.getMessage());</span>
+<span class="nc" id="L134">        }</span>
+<span class="nc" id="L135">        return Ok.of(botEntry);</span>
+    }
+
+    private void welcomeSetup(final TextTerminal terminal) {
+<span class="nc" id="L139">        terminal.print(HEADER);</span>
+<span class="nc" id="L140">        terminal.print(</span>
+            &quot;SETUP MODE\n&quot; +
+                &quot;-----------------\n&quot; +
+                &quot;This setup will walk you through the process of setting up a new bot configuration.\n\n&quot;
+        );
+<span class="nc" id="L145">    }</span>
+
+    private String botName() {
+<span class="nc" id="L148">        final String stepText =</span>
+            &quot;Step 1 - Choosing name for your bot\n&quot; +
+                &quot;--------------------------------------------\n&quot;;
+<span class="nc" id="L151">        final String descText = &quot;This name is what will identify your bot in the config.&quot;;</span>
+
+<span class="nc" id="L153">        final String botName = textIO</span>
+<span class="nc" id="L154">            .newStringInputReader()</span>
+<span class="nc" id="L155">            .withValueChecker(AlyxSetup::botNameChecker)</span>
+<span class="nc" id="L156">            .read(List.of(stepText, descText, &quot;Name:&quot;));</span>
+<span class="nc" id="L157">        return botName.trim();</span>
+    }
+
+    private boolean confirmOverwriteBot() {
+<span class="nc" id="L161">        return textIO</span>
+<span class="nc" id="L162">            .newBooleanInputReader()</span>
+<span class="nc" id="L163">            .read(&quot;\n[WARNING] A bot with that name already exists. Confirm overwrite?&quot;);</span>
+    }
+
+    private char botPrefix() {
+<span class="nc" id="L167">        final String stepText =</span>
+            &quot;Step 2 - Choose a command prefix for your bot\n&quot; +
+                &quot;--------------------------------------------\n&quot;;
+<span class="nc" id="L170">        final String descText = &quot;This is the character that will be used to prefix bot commands (eg. enter ! for !ping)&quot;;</span>
+<span class="nc" id="L171">        return textIO</span>
+<span class="nc" id="L172">            .newCharInputReader()</span>
+<span class="nc" id="L173">            .withDefaultValue(COMMAND_PREFIX_DEFAULT)</span>
+<span class="nc" id="L174">            .read(List.of(stepText, descText, &quot;Prefix:&quot;));</span>
+    }
+
+    private StorageType storageType() {
+<span class="nc" id="L178">        final String stepText =</span>
+            &quot;Step 3 - Choosing a Storage Engine\n&quot; +
+                &quot;--------------------------------------------\n&quot;;
+<span class="nc" id="L181">        final String descText = &quot;Select your preferred engine for storing the bot's config and settings. &quot; +</span>
+            &quot;If you're not sure, leave this as 'json'&quot;;
+
+<span class="nc" id="L184">        return textIO</span>
+<span class="nc" id="L185">            .newEnumInputReader(StorageType.class)</span>
+<span class="nc" id="L186">            .read(List.of(stepText, descText));</span>
+    }
+
+    private Path configDirPath() {
+<span class="nc" id="L190">        final String stepText =</span>
+            &quot;Step 4 - Choosing a Config Storage Directory\n&quot; +
+                &quot;--------------------------------------------\n&quot;;
+<span class="nc" id="L193">        final String descText = &quot;Enter a directory to use for storing the bot's configuration files and settings.&quot; +</span>
+            &quot;We've selected a default location based on your operating system, but you can change this.\n&quot;;
+
+<span class="nc" id="L196">        final String path = textIO</span>
+<span class="nc" id="L197">            .newStringInputReader()</span>
+<span class="nc" id="L198">            .withDefaultValue(defaultDataDir.toAbsolutePath().toString())</span>
+<span class="nc" id="L199">            .withValueChecker(AlyxSetup::configDataPathValueChecker)</span>
+<span class="nc" id="L200">            .read(List.of(stepText, descText, &quot;Default: &quot;));</span>
+<span class="nc" id="L201">        return Path.of(path);</span>
+    }
+
+    private String discordToken() {
+<span class="nc" id="L205">        final String stepText =</span>
+            &quot;Step 5 - Enter the bot's Discord token\n&quot; +
+                &quot;--------------------------------------------\n&quot;;
+<span class="nc" id="L208">        final String descText = &quot;Enter the Discord token that the bot will use to authenticate with Discord.\n&quot;;</span>
+
+<span class="nc" id="L210">        return textIO</span>
+<span class="nc" id="L211">            .newStringInputReader()</span>
+<span class="nc" id="L212">            .withInputMasking(true)</span>
+<span class="nc" id="L213">            .withInputTrimming(true)</span>
+<span class="nc" id="L214">            .withValueChecker(AlyxSetup::discordTokenValueChecker)</span>
+<span class="nc" id="L215">            .read(List.of(stepText, descText, &quot;Token: &quot;));</span>
+    }
+
+    /**
+     * Asks the user to confirm the config directory path that was chosen.
+     * @param path The user selected path to store the bot's config.
+     * @return Boolean indicating whether the user has confirmed the config directory.
+     */
+    private boolean confirmConfigDirPath(final Path path) {
+<span class="nc" id="L224">        return textIO</span>
+<span class="nc" id="L225">            .newBooleanInputReader()</span>
+<span class="nc" id="L226">            .read(String.format(&quot;%n%nYou have chosen your bot's data directory: %s%n Confirm?&quot;,</span>
+<span class="nc" id="L227">                path.toAbsolutePath().toString()));</span>
+    }
+
+    /**
+     * IMPORTANT: Exists for testing purposes only.
+     * @param enteredText Text entered by the user.
+     * @param itemName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
+     */
+    public static List&lt;String&gt; botNameChecker(final String enteredText, final String itemName) {
+<span class="nc bnc" id="L237" title="All 4 branches missed.">        if (enteredText.trim().contains(&quot; &quot;) || enteredText.trim().length() &lt; 1) {</span>
+<span class="nc" id="L238">            return List.of(&quot;The bot name cannot contain spaces and must be at least 1 character long.&quot;);</span>
+        }
+<span class="nc" id="L240">        return null;</span>
+    }
+
+    /**
+     * Tests whether the config data path is valid.
+     *
+     * @param path Path value of the config data dir path entered by the user.
+     * @param inputName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
+     */
+    private static List&lt;String&gt; configDataPathValueChecker(final String path, final String inputName) {
+<span class="nc" id="L251">        final Path configPath = Path.of(path);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (!configPath.isAbsolute()) {</span>
+<span class="nc" id="L253">            return List.of(&quot;The path must be an absolute directory&quot;);</span>
+        }
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (!Files.exists(configPath)) {</span>
+            try {
+<span class="nc" id="L257">                Files.createDirectories(configPath);</span>
+<span class="nc" id="L258">            } catch (final IOException e) {</span>
+<span class="nc" id="L259">                return List.of(&quot;Failed to create that directory. Please check permissions.&quot;);</span>
+<span class="nc" id="L260">            }</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        } else if (!Files.isDirectory(configPath)) {</span>
+<span class="nc" id="L262">            return List.of(&quot;The supplied path must be a directory&quot;);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        } else if (!Files.isWritable(configPath)) {</span>
+<span class="nc" id="L264">            return List.of(&quot;We do not have permission to write to that directory.&quot;);</span>
+        }
+
+<span class="nc" id="L267">        return null;</span>
+    }
+
+    /**
+     * Tests whether the Discord token is valid.
+     *
+     * @param discordToken Discord token provided by the user.
+     * @param inputName Name of the item selected. Not used.
+     * @return A list of responses in the case of an error, or null if the check passed.
+     */
+    private static List&lt;String&gt; discordTokenValueChecker(final String discordToken, final String inputName) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (StringUtils.isAllBlank(discordToken)) {</span>
+<span class="nc" id="L279">            return List.of(&quot;Invalid token. Received a blank token.&quot;);</span>
+        }
+
+        try {
+<span class="nc" id="L283">            final HttpClient client = HttpClient.newHttpClient();</span>
+<span class="nc" id="L284">            final HttpRequest request = HttpRequest.newBuilder()</span>
+<span class="nc" id="L285">                .header(&quot;Authorization&quot;, &quot;Bot &quot; + discordToken)</span>
+<span class="nc" id="L286">                .GET()</span>
+<span class="nc" id="L287">                .uri(new URI(&quot;https://discord.com/api/gateway/bot&quot;))</span>
+<span class="nc" id="L288">                .build();</span>
+
+<span class="nc" id="L290">            final HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());</span>
+<span class="nc" id="L291">            final int codeCheck = response.statusCode() - 200;</span>
+<span class="nc bnc" id="L292" title="All 4 branches missed.">            if (codeCheck &lt; 0 || codeCheck &gt; 100) {</span>
+<span class="nc" id="L293">                throw new LoginException();</span>
+            }
+<span class="nc" id="L295">        } catch (final URISyntaxException | InterruptedException | LoginException | IOException e) {</span>
+<span class="nc" id="L296">            return List.of(&quot;Invalid token. Unable to connect to Discord.&quot;);</span>
+<span class="nc" id="L297">        }</span>
+<span class="nc" id="L298">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

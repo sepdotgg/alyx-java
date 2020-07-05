@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gg.sep.alyx.startup.AlyxCommandLineParserTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2020-07-05T22:37:34" hostname="Adams-MacBook-Pro.local" time="0.01">
+  <properties/>
+  <testcase name="parseArgs_ConfigMissingParameter()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.005"/>
+  <testcase name="buildArguments_BotOnly()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.001"/>
+  <testcase name="parseArgs_SetupWithConfigFile()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.0"/>
+  <testcase name="parseArgs_BotMissingParameter()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.001"/>
+  <testcase name="buildArguments_SetupWithConfigFile()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.001"/>
+  <testcase name="parseArgs_SetupOnly()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.0"/>
+  <testcase name="buildArguments_SetupOnly()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.001"/>
+  <testcase name="parseArgs_BotOnly()" classname="gg.sep.alyx.startup.AlyxCommandLineParserTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.26">
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/AlyxBot.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/Launcher.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/config/ConfigHandler.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/Alyx.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/AlyxException.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/AlyxPlugin.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/CommandParseException.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/NoOpPluginData.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/StatelessAlyxPlugin.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/AlyxCommand.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/Command.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/NestedCommand.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/ParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/PermissionLevel.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/DoubleParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/InstantParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/IntegerParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/LongParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/StringParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/discord/ChannelParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/discord/EmoteParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/discord/MentionParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/discord/RoleParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/commands/parsers/discord/UserParameterParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/events/AbstractAlyxCommandListener.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/events/AbstractAlyxListenerAdapter.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/events/AlyxCommandListener.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/events/EventWaiter.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/model/AlyxConfig.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/model/BotConfig.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/model/BotEntry.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/EmbedColors.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/EmbedReply.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/ErrorReply.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/InteractiveActions.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/ResponseUtils.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/replies/SuccessReply.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/AbstractJsonObject.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/AlyxStorageEngine.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/JsonSerializable.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/JsonStorageEngine.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/StorageType.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/serializer/PathDeserializerAdapter.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/storage/serializer/PathSerializerAdapter.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/util/ModelParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/util/Strings.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugin/util/X11Colors.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugins/AdminCommandsPlugin.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugins/PluginConstants.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/plugins/PluginManagerPlugin.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/setup/AlyxSetup.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/startup/AlyxCLIOption.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/startup/AlyxCommandLineParser.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/main/java/gg/sep/alyx/startup/AlyxStartupArguments.java">
+</file>
+</checkstyle>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.26">
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/LauncherTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/config/ConfigHandlerTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/plugin/storage/StorageTypeTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/plugin/util/ModelParserTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/plugin/util/StringsTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/setup/AbstractJsonObjectTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/startup/AlyxCLIOptionTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/startup/AlyxCommandLineParserTest.java">
+</file>
+<file name="/Users/adam/code/alyx/alyx-core/src/test/java/gg/sep/alyx/startup/AlyxStartupArgumentsTest.java">
+</file>
+</checkstyle>

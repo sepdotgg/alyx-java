@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlyxBot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alyx-core</a> &gt; <a href="index.source.html" class="el_package">gg.sep.alyx</a> &gt; <span class="el_source">AlyxBot.java</span></div><h1>AlyxBot.java</h1><pre class="source lang-java linenums">package gg.sep.alyx;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import javax.security.auth.login.LoginException;
+
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+
+import gg.sep.alyx.plugin.Alyx;
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.commands.AlyxCommand;
+import gg.sep.alyx.plugin.AlyxPlugin;
+import gg.sep.alyx.plugin.commands.parsers.DoubleParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.InstantParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.IntegerParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.LongParameterParser;
+import gg.sep.alyx.plugin.commands.ParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.StringParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.discord.ChannelParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.discord.EmoteParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.discord.RoleParameterParser;
+import gg.sep.alyx.plugin.commands.parsers.discord.UserParameterParser;
+import gg.sep.alyx.config.ConfigHandler;
+import gg.sep.alyx.plugin.events.AlyxCommandListener;
+import gg.sep.alyx.plugin.events.EventWaiter;
+import gg.sep.alyx.plugin.storage.JsonStorageEngine;
+import gg.sep.alyx.plugin.model.BotConfig;
+import gg.sep.alyx.plugin.model.BotEntry;
+import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
+import gg.sep.alyx.plugins.AdminCommandsPlugin;
+import gg.sep.alyx.plugins.PluginManagerPlugin;
+
+/**
+ * The Alyx bot instance.
+ */
+<span class="nc" id="L52">@Log4j2</span>
+public final class AlyxBot implements Alyx {
+    private final BotConfig botConfig;
+    private final AlyxCommandListener commandListener;
+<span class="nc" id="L56">    private volatile boolean isShutdown = false;</span>
+    private final JDA jda;
+
+    @Getter
+    private final BotEntry botEntry;
+    @Getter
+    private final EventWaiter eventWaiter;
+    @Getter
+    private final String commandPrefix;
+    @Getter
+    private final User botOwner;
+<span class="nc" id="L67">    @Getter</span>
+<span class="nc" id="L68">    private final Collection&lt;AlyxPlugin&lt;?&gt;&gt; registeredPlugins = Collections.synchronizedSet(new HashSet&lt;&gt;());</span>
+<span class="nc" id="L69">    @Getter</span>
+<span class="nc" id="L70">    private final Collection&lt;AlyxPlugin&lt;?&gt;&gt; loadedPlugins = Collections.synchronizedSet(new HashSet&lt;&gt;());</span>
+<span class="nc" id="L71">    @Getter</span>
+    private final Map&lt;Class&lt;?&gt;, ParameterParser&lt;?&gt;&gt; parameterParsers = new ConcurrentHashMap&lt;&gt;();
+<span class="nc" id="L73">    @Getter</span>
+    private final Collection&lt;AlyxCommand&gt; loadedCommands = new ArrayList&lt;&gt;();
+<span class="nc" id="L75">    @Getter</span>
+    private final AlyxStorageEngine storageEngine = new JsonStorageEngine();
+
+<span class="nc" id="L78">    private AlyxBot(final BotEntry botEntry) throws LoginException, IOException {</span>
+<span class="nc" id="L79">        this.botEntry = botEntry;</span>
+<span class="nc" id="L80">        this.botConfig = loadBotConfig(botEntry);</span>
+<span class="nc" id="L81">        this.commandPrefix = botConfig.getCommandPrefix().toString();</span>
+<span class="nc" id="L82">        this.eventWaiter = new EventWaiter(botEntry.getBotName());</span>
+<span class="nc" id="L83">        this.commandListener = new AlyxCommandListener(this);</span>
+
+<span class="nc" id="L85">        this.jda = JDABuilder.createDefault(botConfig.getDiscordToken())</span>
+<span class="nc" id="L86">            .addEventListeners(this.commandListener)</span>
+<span class="nc" id="L87">            .addEventListeners(eventWaiter)</span>
+<span class="nc" id="L88">            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)</span>
+<span class="nc" id="L89">            .setAutoReconnect(true)</span>
+<span class="nc" id="L90">            .setActivity(Activity.playing(&quot;λ Half Life: Alyx&quot;))</span>
+<span class="nc" id="L91">            .build();</span>
+
+<span class="nc" id="L93">        this.botOwner = retrieveBotOwner(this.jda);</span>
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerParameterParser(final ParameterParser&lt;?&gt; parser) {
+<span class="nc" id="L101">        this.parameterParsers.put(parser.getType(), parser);</span>
+<span class="nc" id="L102">    }</span>
+
+    /**
+     * Launches a new instance of Alyx for the provided {@link BotEntry}.
+     *
+     * @param botEntry Bot Entry with metadata about the bot and where to find the bot's configuration.
+     * @return New instance of Alyx.
+     */
+    public static Alyx launchBot(final BotEntry botEntry) {
+        try {
+<span class="nc" id="L112">            final AlyxBot alyx = new AlyxBot(botEntry);</span>
+<span class="nc" id="L113">            final PluginManagerPlugin pluginManager = new PluginManagerPlugin(alyx);</span>
+<span class="nc" id="L114">            final AdminCommandsPlugin adminPlugin = new AdminCommandsPlugin(alyx);</span>
+<span class="nc" id="L115">            alyx.registerDefaultParsers();</span>
+
+<span class="nc" id="L117">            alyx.registerPlugin(pluginManager);</span>
+<span class="nc" id="L118">            alyx.registerPlugin(adminPlugin);</span>
+
+<span class="nc" id="L120">            alyx.loadPlugin(pluginManager);</span>
+<span class="nc" id="L121">            alyx.loadPlugin(adminPlugin);</span>
+<span class="nc" id="L122">            return alyx;</span>
+<span class="nc" id="L123">        } catch (final AlyxException | LoginException | IOException e) {</span>
+<span class="nc" id="L124">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerPlugin(final AlyxPlugin&lt;?&gt; plugin) {
+
+        // TODO: Loading/unloading won't be here so remove the try/catch
+        try {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if (!this.registeredPlugins.add(plugin)) {</span>
+<span class="nc" id="L137">                throw new AlyxException(&quot;A matching plugin already exists.&quot;);</span>
+            }
+<span class="nc" id="L139">            plugin.register();</span>
+<span class="nc" id="L140">        } catch (final AlyxException e) {</span>
+<span class="nc" id="L141">            throw new RuntimeException(e);</span>
+<span class="nc" id="L142">        }</span>
+<span class="nc" id="L143">    }</span>
+
+    /**
+     * Shuts down this instance of Alyx.
+     */
+    @Override
+    public synchronized void shutdown() {
+        // don't run the shutdown process twice
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (isShutdown) {</span>
+<span class="nc" id="L152">            log.error(&quot;Attempted to shut down an already shut down bot.&quot;);</span>
+<span class="nc" id="L153">            return;</span>
+        }
+<span class="nc" id="L155">        this.isShutdown = true;</span>
+
+        // stop listening for new commands
+<span class="nc" id="L158">        this.commandListener.setListening(false);</span>
+
+        // tell plugins that we're shutting down
+        // they have 30 seconds to complete and should respond asynchronously
+<span class="nc" id="L162">        final List&lt;AlyxPlugin&lt;?&gt;&gt; currentPlugins = new ArrayList&lt;&gt;(this.getRegisteredPlugins());</span>
+<span class="nc" id="L163">        final Map&lt;AlyxPlugin&lt;?&gt;, CompletableFuture&lt;?&gt;&gt; futureMap = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        for (final AlyxPlugin&lt;?&gt; plugin : currentPlugins) {</span>
+<span class="nc" id="L166">            futureMap.put(plugin, plugin.botShutdown().orTimeout(30, TimeUnit.SECONDS));</span>
+<span class="nc" id="L167">        }</span>
+
+<span class="nc" id="L169">        final CompletableFuture&lt;Void&gt; allShutdown = CompletableFuture.allOf(futureMap.values()</span>
+<span class="nc" id="L170">            .toArray(new CompletableFuture[0]));</span>
+
+        // confirm plugins are shut down
+<span class="nc" id="L173">        allShutdown.exceptionally(throwable -&gt; {</span>
+            // find the plugins that failed
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            for (final Map.Entry&lt;AlyxPlugin&lt;?&gt;, CompletableFuture&lt;?&gt;&gt; entry : futureMap.entrySet()) {</span>
+<span class="nc bnc" id="L176" title="All 4 branches missed.">                if (entry.getValue().isCancelled() || entry.getValue().isCompletedExceptionally()) {</span>
+<span class="nc" id="L177">                    log.error(&quot;Error shutting down plugin. plugin={}&quot;, entry.getKey().getIdentifier());</span>
+                }
+<span class="nc" id="L179">            }</span>
+<span class="nc" id="L180">            log.error(&quot;Error shutting down plugins.&quot;, throwable);</span>
+<span class="nc" id="L181">            return null;</span>
+<span class="nc" id="L182">        }).join();</span>
+
+        // shutdown anything in EventWaiter
+<span class="nc" id="L185">        this.eventWaiter.shutdown(60, TimeUnit.SECONDS).handle((result, throwable) -&gt; {</span>
+<span class="nc bnc" id="L186" title="All 4 branches missed.">            if (!result || throwable != null) {</span>
+<span class="nc" id="L187">                log.error(&quot;Failed to shut down all EventWaiter tasks. This may result in additional errors.&quot;, throwable);</span>
+            }
+<span class="nc" id="L189">            return result;</span>
+<span class="nc" id="L190">        }).join(); // block</span>
+
+        // don't shutdown JDA until we know it's safe or the timeout has been reached
+<span class="nc" id="L193">        this.jda.shutdown();</span>
+<span class="nc" id="L194">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadPlugin(final AlyxPlugin&lt;?&gt; plugin) throws AlyxException {
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (!registeredPlugins.contains(plugin)) {</span>
+<span class="nc" id="L202">            throw new AlyxException(</span>
+<span class="nc" id="L203">                String.format(&quot;Plugin '%s' is not registered.&quot;, plugin.getName())</span>
+            );
+        }
+
+<span class="nc" id="L207">        this.loadedPlugins.add(plugin);</span>
+<span class="nc" id="L208">        this.loadedCommands.addAll(plugin.loadCommands());</span>
+<span class="nc" id="L209">        plugin.load();</span>
+<span class="nc" id="L210">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unloadPlugin(final AlyxPlugin&lt;?&gt; plugin) throws AlyxException {
+<span class="nc" id="L217">        this.unloadPlugin(plugin, false);</span>
+<span class="nc" id="L218">    }</span>
+
+    /**
+     * TODO: Make this method public, but add permissions to override the guard.
+     * @param plugin The plugin to unload.
+     * @param guardOverride If set to {@code true}, guarded plugins can be unloaded.
+     *                      This is extremely dangerous since it's possible they might
+     *                      not ever be able to be loaded again without modifying config files (eg, PluginManager).
+     * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
+     */
+    private void unloadPlugin(final AlyxPlugin&lt;?&gt; plugin, final boolean guardOverride) throws AlyxException {
+<span class="nc bnc" id="L229" title="All 4 branches missed.">        if (plugin.isGuarded() &amp;&amp; !guardOverride) {</span>
+<span class="nc" id="L230">            throw new AlyxException(plugin.getName() + &quot; is a guarded plugin.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L233" title="All 4 branches missed.">        if (!registeredPlugins.contains(plugin) || !loadedPlugins.contains(plugin)) {</span>
+<span class="nc" id="L234">            throw new AlyxException(</span>
+<span class="nc" id="L235">                String.format(&quot;Plugin '%s' is not registered or loaded&quot;, plugin.getName())</span>
+            );
+        }
+<span class="nc" id="L238">        plugin.unload();</span>
+<span class="nc" id="L239">        this.loadedPlugins.remove(plugin);</span>
+<span class="nc" id="L240">        this.loadedCommands.removeAll(plugin.loadCommands());</span>
+<span class="nc" id="L241">    }</span>
+
+    /**
+     * Returns the Bot Owner {@link User} for the given instance of JDA.
+     *
+     * This is a blocking call.
+     *
+     * @param jda JDA instance.
+     * @return Bot owner user.
+     */
+    private static User retrieveBotOwner(final JDA jda) {
+<span class="nc" id="L252">        return jda.retrieveApplicationInfo().complete()</span>
+<span class="nc" id="L253">            .getOwner();</span>
+    }
+
+    /**
+     * Registers the default parsers that come as a part of Alyx.
+     */
+    private void registerDefaultParsers() {
+<span class="nc" id="L260">        List.of(</span>
+            new StringParameterParser(),
+            new IntegerParameterParser(),
+            new DoubleParameterParser(),
+            new LongParameterParser(),
+            new InstantParameterParser(),
+
+            // Discord types
+            new UserParameterParser(),
+            new RoleParameterParser(),
+            new ChannelParameterParser(),
+            new EmoteParameterParser()
+<span class="nc" id="L272">        ).forEach(this::registerParameterParser);</span>
+<span class="nc" id="L273">    }</span>
+
+    /**
+     * Attempts to load the a bot's configuration file.
+     *
+     * @param botEntry BotEntry of the bot.
+     * @return The bot's configuration, if found.
+     * @throws IOException Exception thrown if loading the bot's configuration file fails.
+     */
+    private static BotConfig loadBotConfig(final BotEntry botEntry) throws IOException {
+<span class="nc" id="L283">        final ConfigHandler handler = new ConfigHandler(botEntry.getDataDir());</span>
+<span class="nc" id="L284">        final Optional&lt;BotConfig&gt; botConfig = handler.loadBotConfig(botEntry);</span>
+<span class="nc" id="L285">        return botConfig.orElseThrow(() -&gt;</span>
+<span class="nc" id="L286">            new IOException(&quot;Error loading the Bot's config from: &quot; + botEntry.getDataDir()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

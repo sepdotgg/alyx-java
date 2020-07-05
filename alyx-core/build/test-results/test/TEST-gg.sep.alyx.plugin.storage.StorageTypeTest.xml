@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gg.sep.alyx.plugin.storage.StorageTypeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-07-05T22:37:34" hostname="Adams-MacBook-Pro.local" time="0.0">
+  <properties/>
+  <testcase name="toString_EqualsValue()" classname="gg.sep.alyx.plugin.storage.StorageTypeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

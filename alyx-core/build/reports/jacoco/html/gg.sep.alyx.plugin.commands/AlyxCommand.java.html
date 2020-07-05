@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlyxCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alyx-core</a> &gt; <a href="index.source.html" class="el_package">gg.sep.alyx.plugin.commands</a> &gt; <span class="el_source">AlyxCommand.java</span></div><h1>AlyxCommand.java</h1><pre class="source lang-java linenums">package gg.sep.alyx.plugin.commands;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import gg.sep.alyx.plugin.AlyxException;
+import gg.sep.alyx.plugin.AlyxPlugin;
+import gg.sep.alyx.plugin.util.Strings;
+
+/**
+ * Represents a single command which can be executed/invoked by Alyx.
+ */
+@AllArgsConstructor
+public final class AlyxCommand {
+    private final AlyxPlugin&lt;?&gt; plugin;
+
+    @Setter private Collection&lt;Permission&gt; requiredPermissions;
+    @Setter private Collection&lt;String&gt; requiredRoles;
+    @Setter private PermissionLevel permissionLevel;
+    @Setter private boolean guildOnly;
+
+    private final String name;
+    @Getter
+    private final List&lt;List&lt;String&gt;&gt; commandChain;
+    private final List&lt;ParameterParser&lt;?&gt;&gt; parsers;
+
+    private final Method method;
+
+    /**
+     * Creates a new AlyxCommand.
+     *
+     * @param plugin The plugin where the command is defined.
+     * @param name The name of the command.
+     * @param commandChain The chain of commands needed to execute the command.
+     * @param parsers Parameter parsers used by the command.
+     * @param method The Java method which executes the command.
+     */
+    public AlyxCommand(final AlyxPlugin&lt;?&gt; plugin, final String name, final List&lt;List&lt;String&gt;&gt; commandChain,
+                       final List&lt;ParameterParser&lt;?&gt;&gt; parsers, final Method method) {
+
+<span class="nc" id="L55">        this(plugin, Collections.emptyList(), Collections.emptyList(),</span>
+            PermissionLevel.EVERYONE, false, name, commandChain, parsers, method);
+<span class="nc" id="L57">    }</span>
+
+    /**
+     * Checks whether this command responds to the supplied command string.
+     *
+     * @param messageText The event's message text minus the bot's prefix.
+     * @return Returns {@code true} if this command handles the event text command string.
+     */
+    public boolean matches(final String messageText) {
+<span class="nc" id="L66">        final String[] splitCheck = Strings.splitWithQuotes(messageText);</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (splitCheck.length &lt; commandChain.size()) {</span>
+<span class="nc" id="L69">            return false;</span>
+        }
+
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (int i = 0; i &lt; commandChain.size(); i++) {</span>
+<span class="nc" id="L73">            final String cmdPortion = splitCheck[i];</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (!commandChain.get(i).contains(cmdPortion.trim())) {</span>
+<span class="nc" id="L75">                return false;</span>
+            }
+        }
+<span class="nc" id="L78">        return true;</span>
+    }
+
+    /**
+     * Extracts the parameter passed to a bot command, removing the command chain from
+     * the start of the string.
+     *
+     * @param messageText The raw event message text, minus the command prefix.
+     * @return Array of string parameters to pass to the command invoker.
+     */
+    private String[] extractParameters(final String messageText) {
+        // we've already validated the command string at this point
+<span class="nc" id="L90">        final String[] splitMessageText = Strings.splitWithQuotes(messageText);</span>
+<span class="nc" id="L91">        final List&lt;String&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L92">        final int parametersLen = splitMessageText.length - commandChain.size();</span>
+
+        // skip past the command's in the message and grab just the parameters (if any)
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (int i = 0; i &lt; parametersLen; i++) {</span>
+<span class="nc" id="L96">            final int argsPosition = i + commandChain.size();</span>
+<span class="nc" id="L97">            parameters.add(splitMessageText[argsPosition]);</span>
+        }
+        // clear out any empty parameters
+        // TODO: This may be a valid use case in the future for empty double quotes
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (parameters.size() == 0 || parameters.stream().allMatch(Strings::isBlank)) {</span>
+<span class="nc" id="L102">            return new String[]{};</span>
+        }
+<span class="nc" id="L104">        return parameters.toArray(new String[0]);</span>
+    }
+
+    /**
+     * Checks whether a command method receives the raw message event as the first parameter.
+     *
+     * @return Returns {@code true} if the command's method receives the Discord event as the first parameter.
+     */
+    private boolean receivesEvent() {
+<span class="nc" id="L113">        final Parameter[] parameters = method.getParameters();</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        return parameters.length &gt; 0 &amp;&amp; parameters[0].getType().equals(MessageReceivedEvent.class);</span>
+    }
+
+    /**
+     * Invokes the command, passing any parameters to the command's method.
+     *
+     * If the parameters do not match the format of the method's parameters,
+     * the command's help text will instead by sent back to the user.
+     *
+     * @param event The Discord message event which triggered the command.
+     * @param messageText The raw event message text, minus the command prefix.
+     * @throws AlyxException Exception thrown if invoking the command failed.
+     */
+    public void invoke(final MessageReceivedEvent event, final String messageText) throws AlyxException {
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (!canUseCommand(event)) {</span>
+<span class="nc" id="L130">            return;</span>
+        }
+
+<span class="nc" id="L133">        final String[] parameterArgs = extractParameters(messageText);</span>
+
+        // We matched the command, but it's missing parameters or has too many parameters
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (parameterArgs.length != parsers.size()) {</span>
+<span class="nc" id="L137">            sendCommandHelp(event);</span>
+<span class="nc" id="L138">            return;</span>
+        }
+
+        // place the event at the start of the array if the method receives the event as a parameter
+        final Object[] invokeArgs;
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (receivesEvent()) {</span>
+<span class="nc" id="L144">            invokeArgs = new Object[parameterArgs.length + 1];</span>
+<span class="nc" id="L145">            invokeArgs[0] = event;</span>
+        } else {
+<span class="nc" id="L147">            invokeArgs = new Object[parameterArgs.length];</span>
+        }
+
+        // parse the parameter strings into their typed counterparts
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        for (int i = 0; i &lt; parameterArgs.length; i++) {</span>
+<span class="nc" id="L152">            final Object parsed = parsers.get(i).parse(parameterArgs[i], event);</span>
+<span class="nc" id="L153">            invokeArgs[i + 1] = parsed;</span>
+        }
+
+        try {
+<span class="nc" id="L157">            method.invoke(plugin, invokeArgs);</span>
+<span class="nc" id="L158">        } catch (final ReflectiveOperationException e) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (e.getCause() instanceof AlyxException) {</span>
+<span class="nc" id="L160">                throw (AlyxException) e.getCause();</span>
+            }
+            // TODO (release): Wrap this in an AlyxException
+            // TODO: Leaving this as a Runtime exception during development
+<span class="nc" id="L164">            throw new RuntimeException(e);</span>
+<span class="nc" id="L165">        }</span>
+<span class="nc" id="L166">    }</span>
+
+    private boolean canUseCommand(final MessageReceivedEvent event) {
+
+        // check if this is a guild only command being called in a private channel
+<span class="nc bnc" id="L171" title="All 4 branches missed.">        if (!event.isFromGuild() &amp;&amp; guildOnly) {</span>
+<span class="nc" id="L172">            return false;</span>
+        }
+
+        // if there's no required roles or permissions, return true
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (requiredRoles.size() == 0</span>
+<span class="nc bnc" id="L177" title="All 4 branches missed.">            &amp;&amp; requiredPermissions.size() == 0</span>
+            &amp;&amp; permissionLevel == PermissionLevel.EVERYONE) {
+<span class="nc" id="L179">            return true;</span>
+        }
+
+<span class="nc" id="L182">        final User eventUser = event.getAuthor();</span>
+<span class="nc" id="L183">        final User botOwner = plugin.getAlyx().getBotOwner();</span>
+
+        // bot owner
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (eventUser.equals(botOwner)) {</span>
+<span class="nc" id="L187">            return true;</span>
+        }
+
+        // guild permission checks
+<span class="nc bnc" id="L191" title="All 4 branches missed.">        if (event.isFromGuild() &amp;&amp; event.getMember() != null) {</span>
+            // role check
+<span class="nc" id="L193">            final List&lt;String&gt; userRoles = event.getMember().getRoles().stream().map(Role::getName)</span>
+<span class="nc" id="L194">                .collect(Collectors.toList());</span>
+
+<span class="nc" id="L196">            final boolean hasRole = requiredRoles.stream().anyMatch(userRoles::contains);</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (hasRole) {</span>
+<span class="nc" id="L198">                return true;</span>
+            }
+
+            // permissions check
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            for (final Permission permission : requiredPermissions) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                final boolean hasChannelPermission = permission.isChannel() &amp;&amp;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                    event.getMember().hasPermission(event.getTextChannel(), permission);</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                if (hasChannelPermission) {</span>
+<span class="nc" id="L206">                    return true;</span>
+                }
+
+<span class="nc" id="L209">                final boolean hasGlobalPermission = event.getMember().hasPermission(permission);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                if (hasGlobalPermission) {</span>
+<span class="nc" id="L211">                    return true;</span>
+                }
+<span class="nc" id="L213">            }</span>
+        }
+<span class="nc" id="L215">        final PermissionLevel userPermissionLevel = PermissionLevel.getLevel(eventUser, plugin.getAlyx());</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        if (userPermissionLevel.isOk(permissionLevel)) {</span>
+<span class="nc" id="L217">            return true;</span>
+        }
+        // TODO: Private Channel permissions
+<span class="nc" id="L220">        return false;</span>
+    }
+
+    /**
+     * Sends the command's usage documentation back to the user.
+     *
+     * @param event The event which triggered the command.
+     */
+    private void sendCommandHelp(final MessageReceivedEvent event) {
+        // TODO
+<span class="nc" id="L230">        event.getChannel().sendMessage(this.name + &quot; Help&quot;).queue();</span>
+<span class="nc" id="L231">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L238">        return Objects.hash(plugin.getIdentifier(), this.name);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        // TODO Serial
+<span class="nc bnc" id="L247" title="All 4 branches missed.">        return (obj instanceof AlyxCommand) &amp;&amp; this.hashCode() == obj.hashCode();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
