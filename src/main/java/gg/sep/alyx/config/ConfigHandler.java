@@ -14,7 +14,7 @@ import net.harawata.appdirs.AppDirsFactory;
 import gg.sep.alyx.plugin.model.AlyxConfig;
 import gg.sep.alyx.plugin.model.BotConfig;
 import gg.sep.alyx.plugin.model.BotEntry;
-import gg.sep.alyx.util.ModelParser;
+import gg.sep.alyx.plugin.util.ModelParser;
 
 /**
  * {@link ConfigHandler} is responsible for creating, updating, and reading an Alyx config files.

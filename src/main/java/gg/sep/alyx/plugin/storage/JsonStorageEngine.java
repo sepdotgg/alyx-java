@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import gg.sep.alyx.plugin.NoOpPluginData;
-import gg.sep.alyx.util.ModelParser;
+import gg.sep.alyx.plugin.util.ModelParser;
 
 /**
  * Class to interact with the bot's JSON data storage.

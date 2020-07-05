@@ -1,8 +1,8 @@
-package gg.sep.alyx.replies;
+package gg.sep.alyx.plugin.replies;
 
 import java.awt.Color;
 
-import gg.sep.alyx.util.X11Colors;
+import gg.sep.alyx.plugin.util.X11Colors;
 
 /**
  * Common colors which can be used by Embeds.

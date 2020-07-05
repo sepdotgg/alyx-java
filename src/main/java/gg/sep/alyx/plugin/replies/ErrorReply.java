@@ -1,4 +1,4 @@
-package gg.sep.alyx.replies;
+package gg.sep.alyx.plugin.replies;
 
 /**
  * An {@link EmbedReply} which can be used to represent error messages.

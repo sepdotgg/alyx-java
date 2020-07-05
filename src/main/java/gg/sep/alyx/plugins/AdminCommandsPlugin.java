@@ -10,7 +10,7 @@ import gg.sep.alyx.plugin.Alyx;
 import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.StatelessAlyxPlugin;
 import gg.sep.alyx.plugin.commands.PermissionLevel;
-import gg.sep.alyx.replies.InteractiveActions;
+import gg.sep.alyx.plugin.replies.InteractiveActions;
 
 /**
  * Command to administer the Alyx bot instance.

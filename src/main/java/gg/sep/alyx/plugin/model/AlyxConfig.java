@@ -8,12 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import gg.sep.alyx.config.ConfigHandler;
 import gg.sep.alyx.plugin.storage.AbstractJsonObject;
 import gg.sep.alyx.plugin.storage.JsonSerializable;
 
 /**
- * Model class for the core Alyx configuration JSON file, loaded via {@link ConfigHandler}.
+ * Model class for the core Alyx configuration JSON file..
  */
 @Builder
 @Getter

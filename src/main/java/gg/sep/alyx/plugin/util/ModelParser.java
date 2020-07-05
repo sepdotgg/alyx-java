@@ -1,4 +1,4 @@
-package gg.sep.alyx.util;
+package gg.sep.alyx.plugin.util;
 
 import java.util.Optional;
 

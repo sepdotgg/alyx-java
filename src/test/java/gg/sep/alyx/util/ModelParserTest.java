@@ -14,6 +14,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import gg.sep.alyx.plugin.util.ModelParser;
+
 /**
  * Tests for {@link ModelParser}.
  */

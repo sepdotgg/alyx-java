@@ -1,4 +1,4 @@
-package gg.sep.alyx.replies;
+package gg.sep.alyx.plugin.replies;
 
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.Permission;

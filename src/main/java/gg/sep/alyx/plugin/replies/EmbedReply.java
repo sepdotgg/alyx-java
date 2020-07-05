@@ -1,4 +1,4 @@
-package gg.sep.alyx.replies;
+package gg.sep.alyx.plugin.replies;
 
 import java.awt.Color;
 
