@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.pf4j.JarPluginManager;
 
 import gg.sep.alyx.config.ConfigHandler;
 import gg.sep.alyx.plugin.Alyx;
@@ -43,8 +44,6 @@ import gg.sep.alyx.plugin.model.BotConfig;
 import gg.sep.alyx.plugin.model.BotEntry;
 import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
 import gg.sep.alyx.plugin.storage.JsonStorageEngine;
-import gg.sep.alyx.plugins.AdminCommandsPlugin;
-import gg.sep.alyx.plugins.PluginManagerPlugin;
 
 /**
  * The Alyx bot instance.
@@ -110,15 +109,20 @@ public final class AlyxBot implements Alyx {
     public static Alyx launchBot(final BotEntry botEntry) {
         try {
             final AlyxBot alyx = new AlyxBot(botEntry);
-            final PluginManagerPlugin pluginManager = new PluginManagerPlugin(alyx);
-            final AdminCommandsPlugin adminPlugin = new AdminCommandsPlugin(alyx);
             alyx.registerDefaultParsers();
 
-            alyx.registerPlugin(pluginManager);
-            alyx.registerPlugin(adminPlugin);
+            // load all of our plugins
+            final JarPluginManager pluginManager = new JarPluginManager(); // TODO: Path to the plugin folder
+            pluginManager.loadPlugins();
+            pluginManager.startPlugins();
 
-            alyx.loadPlugin(pluginManager);
-            alyx.loadPlugin(adminPlugin);
+            final List<AlyxPlugin> plugins = pluginManager.getExtensions(AlyxPlugin.class);
+            for (final AlyxPlugin plugin : plugins) {
+                plugin.setAlyx(alyx);
+                alyx.registerPlugin(plugin);
+                alyx.loadPlugin(plugin);
+            }
+
             return alyx;
         } catch (final AlyxException | LoginException | IOException e) {
             throw new RuntimeException(e);

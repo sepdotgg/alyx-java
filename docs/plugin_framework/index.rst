@@ -44,8 +44,8 @@ same channel.
        private static final String NAME = "PingCommandPlugin";
        private static final long PLUGIN_SERIAL = 93227548547886L;
 
-       public PingCommandPlugin(final Alyx alyx) {
-           super(NAME, PLUGIN_SERIAL, false, alyx);
+       public PingCommandPlugin() {
+           super(NAME, PLUGIN_SERIAL, false);
        }
 
        @Command(name = "ping")
@@ -70,7 +70,7 @@ a conflict with another plugin. One recommended value to put here is your
 Discord user's snowflake ID, so that you effectively get your own "namespace" to
 yourself across all Alyx plugins.
 
-Our plugin's constructor must **exclusively** accept ``Alyx`` as a parameter.
+The plugin's class **must** provide a default constructor, ie, one with no parameters.
 
 Finally, we define a command which will be intercepted by the plugin and acted upon.
 See the :doc:`Defining Commands <./commands>`  section for full details.

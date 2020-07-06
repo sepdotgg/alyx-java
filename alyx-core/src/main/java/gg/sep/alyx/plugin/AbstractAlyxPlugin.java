@@ -18,11 +18,11 @@ import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import gg.sep.alyx.plugin.storage.JsonSerializable;
 import gg.sep.alyx.plugin.commands.AlyxCommand;
 import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.commands.ParameterParser;
 import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
+import gg.sep.alyx.plugin.storage.JsonSerializable;
 
 /**
  * An abstract implementation of {@link AlyxPlugin}, providing common
@@ -32,8 +32,7 @@ import gg.sep.alyx.plugin.storage.AlyxStorageEngine;
  */
 public abstract class AbstractAlyxPlugin<D extends JsonSerializable> implements AlyxPlugin<D> {
     private D pluginData = null;
-    @Getter
-    private final Alyx alyx;
+    private volatile Alyx alyx = null;
     @Getter
     private boolean guarded;
     @Getter
@@ -41,16 +40,33 @@ public abstract class AbstractAlyxPlugin<D extends JsonSerializable> implements 
     @Getter
     private final String name;
 
-    protected AbstractAlyxPlugin(final String name, final long serial, final Alyx alyx) {
+    protected AbstractAlyxPlugin(final String name, final long serial) {
         this.name = name;
-        this.alyx = alyx;
         this.identifier = String.format("%s.%s", serial, name);
         this.guarded = false;
     }
 
-    protected AbstractAlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
-        this(name, serial, alyx);
+    protected AbstractAlyxPlugin(final String name, final long serial, final boolean isGuarded) {
+        this(name, serial);
         this.guarded = isGuarded;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized Alyx getAlyx() {
+        return this.alyx;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setAlyx(final Alyx alyx) {
+        if (alyx != null) {
+            this.alyx = alyx;
+        }
     }
 
     /**

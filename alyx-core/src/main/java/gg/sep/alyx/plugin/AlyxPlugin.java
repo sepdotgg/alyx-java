@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import org.pf4j.ExtensionPoint;
+
 import gg.sep.alyx.plugin.commands.AlyxCommand;
 import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.storage.JsonSerializable;
@@ -17,7 +19,7 @@ import gg.sep.alyx.plugin.storage.JsonSerializable;
  *       This would instead require Alyx be passed in as a parameter to each command method, but
  *       allows better scalability since you can share instances of plugins across Alyx instances.
  */
-public interface AlyxPlugin<D extends JsonSerializable> {
+public interface AlyxPlugin<D extends JsonSerializable> extends ExtensionPoint {
 
     /**
      * Returns a string which uniquely identifies this plugin.
@@ -35,6 +37,13 @@ public interface AlyxPlugin<D extends JsonSerializable> {
      * @return The friendly name of the plugin.
      */
     String getName();
+
+    /**
+     * Called immediately after constructing the plugin to set Alyx.
+     *
+     * @param alyx Instance of Alyx using the plugin.
+     */
+    void setAlyx(Alyx alyx);
 
     /**
      * Returns the instance of {@link Alyx} where this plugin is

@@ -13,6 +13,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     compileOnly "com.github.spotbugs:spotbugs-annotations:$spotbugsVersion"
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.pf4j:pf4j:3.3.+"
 
     // Use JUnit Jupiter API for testing.
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"

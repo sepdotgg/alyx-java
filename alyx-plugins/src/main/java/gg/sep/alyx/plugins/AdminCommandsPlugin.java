@@ -5,8 +5,8 @@ import static gg.sep.alyx.plugins.PluginConstants.ALYX_PLUGIN_SERIAL;
 import java.time.Duration;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.pf4j.Extension;
 
-import gg.sep.alyx.plugin.Alyx;
 import gg.sep.alyx.plugin.StatelessAlyxPlugin;
 import gg.sep.alyx.plugin.commands.Command;
 import gg.sep.alyx.plugin.commands.PermissionLevel;
@@ -15,15 +15,15 @@ import gg.sep.alyx.plugin.replies.InteractiveActions;
 /**
  * Command to administer the Alyx bot instance.
  */
+@Extension
 public class AdminCommandsPlugin extends StatelessAlyxPlugin {
     private static final String NAME = "AlyxAdminCommands";
 
     /**
      * Initialize the plugin.
-     * @param alyx Instance of Alyx.
      */
-    public AdminCommandsPlugin(final Alyx alyx) {
-        super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);
+    public AdminCommandsPlugin() {
+        super(NAME, ALYX_PLUGIN_SERIAL, true);
     }
 
     /**

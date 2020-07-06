@@ -8,12 +8,12 @@ public abstract class StatelessAlyxPlugin extends AbstractAlyxPlugin<NoOpPluginD
 
     private static final NoOpPluginData NO_OP_DATA = new NoOpPluginData();
 
-    protected StatelessAlyxPlugin(final String name, final long serial, final Alyx alyx) {
-        this(name, serial, false, alyx);
+    protected StatelessAlyxPlugin(final String name, final long serial) {
+        this(name, serial, false);
     }
 
-    protected StatelessAlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
-        super(name, serial, isGuarded, alyx);
+    protected StatelessAlyxPlugin(final String name, final long serial, final boolean isGuarded) {
+        super(name, serial, isGuarded);
     }
 
     /**

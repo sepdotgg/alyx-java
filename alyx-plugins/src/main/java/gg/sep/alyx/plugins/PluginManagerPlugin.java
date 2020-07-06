@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.pf4j.Extension;
 
-import gg.sep.alyx.plugin.Alyx;
 import gg.sep.alyx.plugin.AlyxException;
 import gg.sep.alyx.plugin.AlyxPlugin;
 import gg.sep.alyx.plugin.StatelessAlyxPlugin;
@@ -19,15 +19,15 @@ import gg.sep.alyx.plugin.commands.Command;
  *
  * See {@link AlyxPlugin#isGuarded()} for info.
  */
+@Extension
 public class PluginManagerPlugin extends StatelessAlyxPlugin {
     private static final String NAME = "AlyxPluginManager";
 
     /**
      * Initializes a new instance of the Plugin Manager Plugin.
-     * @param alyx Instance of Alyx which will use this plugin.
      */
-    public PluginManagerPlugin(final Alyx alyx) {
-        super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);
+    public PluginManagerPlugin() {
+        super(NAME, ALYX_PLUGIN_SERIAL, true);
     }
 
     /**
