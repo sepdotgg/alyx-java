@@ -4,7 +4,7 @@ package gg.sep.alyx.plugin;
  * An abstract class for an {@link AlyxPlugin} which does not need to store
  * any state or configuration to the bot's database.
  */
-public abstract class StatelessAlyxPlugin extends AlyxPlugin<NoOpPluginData> {
+public abstract class StatelessAlyxPlugin extends AbstractAlyxPlugin<NoOpPluginData> {
 
     private static final NoOpPluginData NO_OP_DATA = new NoOpPluginData();
 
