@@ -1,24 +1,10 @@
-plugins {
-    id 'java'
-    id 'application'
-}
-
 dependencies {
-    // alyx core dependencies
     implementation project(':alyx-core')
-    implementation project(':alyx-plugins')
-    implementation "org.beryx:text-io:3.3.0" // for interactive setup
-    implementation "net.harawata:appdirs:1.1.+" // for platform independent application dirs
-    implementation "gg.sep:result:1.1.1"
-    implementation "org.pf4j:pf4j:3.3.+"
 
     // External Utilities and Libraries
-    implementation "commons-cli:commons-cli:1.4"
     implementation "com.google.code.gson:gson:2.8.+"
     implementation "org.apache.commons:commons-lang3:3.+"
     implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
-    implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
-    implementation "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
 
     // build dependencies
     sepBuildConfig "gg.sep:sep-java-build-config:0.4.0"
@@ -118,11 +104,6 @@ build.dependsOn javadoc
 compileJava {
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-}
-
-application {
-    // Define the main class for the application
-    mainClassName = 'gg.sep.alyx.Launcher'
 }
 
 test {

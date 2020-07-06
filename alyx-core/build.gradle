@@ -1,7 +1,7 @@
 dependencies {
     // alyx core dependencies
     api "net.dv8tion:JDA:4.+" // JDA for Discord API
-    implementation "org.pf4j:pf4j:3.3.+"
+    api "org.pf4j:pf4j:3.3.+"
 
     // External Utilities and Libraries
     implementation "com.google.code.gson:gson:2.8.+"
