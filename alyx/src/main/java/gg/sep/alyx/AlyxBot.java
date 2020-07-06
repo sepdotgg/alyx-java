@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.pf4j.JarPluginManager;
+import org.pf4j.PluginManager;
 
 import gg.sep.alyx.config.ConfigHandler;
 import gg.sep.alyx.plugin.Alyx;
@@ -112,13 +112,12 @@ public final class AlyxBot implements Alyx {
             alyx.registerDefaultParsers();
 
             // load all of our plugins
-            final JarPluginManager pluginManager = new JarPluginManager(); // TODO: Path to the plugin folder
+            final PluginManager pluginManager = new AlyxPluginManager(alyx); // TODO: Path to the plugin folder
             pluginManager.loadPlugins();
             pluginManager.startPlugins();
 
             final List<AlyxPlugin> plugins = pluginManager.getExtensions(AlyxPlugin.class);
             for (final AlyxPlugin plugin : plugins) {
-                plugin.setAlyx(alyx);
                 alyx.registerPlugin(plugin);
                 alyx.loadPlugin(plugin);
             }

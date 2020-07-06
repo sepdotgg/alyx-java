@@ -39,13 +39,6 @@ public interface AlyxPlugin<D extends JsonSerializable> extends ExtensionPoint {
     String getName();
 
     /**
-     * Called immediately after constructing the plugin to set Alyx.
-     *
-     * @param alyx Instance of Alyx using the plugin.
-     */
-    void setAlyx(Alyx alyx);
-
-    /**
      * Returns the instance of {@link Alyx} where this plugin is
      * being used.
      * @return The instance of {@link Alyx} where this plugin is installed.

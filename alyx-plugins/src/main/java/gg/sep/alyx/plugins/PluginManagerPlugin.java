@@ -8,6 +8,7 @@ import java.util.List;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.pf4j.Extension;
 
+import gg.sep.alyx.plugin.Alyx;
 import gg.sep.alyx.plugin.AlyxException;
 import gg.sep.alyx.plugin.AlyxPlugin;
 import gg.sep.alyx.plugin.StatelessAlyxPlugin;
@@ -25,9 +26,10 @@ public class PluginManagerPlugin extends StatelessAlyxPlugin {
 
     /**
      * Initializes a new instance of the Plugin Manager Plugin.
+     * @param alyx The instance of Alyx for which to initialize this plugin.
      */
-    public PluginManagerPlugin() {
-        super(NAME, ALYX_PLUGIN_SERIAL, true);
+    public PluginManagerPlugin(final Alyx alyx) {
+        super(NAME, ALYX_PLUGIN_SERIAL, true, alyx);
     }
 
     /**

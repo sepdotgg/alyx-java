@@ -32,7 +32,7 @@ import gg.sep.alyx.plugin.storage.JsonSerializable;
  */
 public abstract class AbstractAlyxPlugin<D extends JsonSerializable> implements AlyxPlugin<D> {
     private D pluginData = null;
-    private volatile Alyx alyx = null;
+    private final Alyx alyx;
     @Getter
     private boolean guarded;
     @Getter
@@ -40,14 +40,15 @@ public abstract class AbstractAlyxPlugin<D extends JsonSerializable> implements 
     @Getter
     private final String name;
 
-    protected AbstractAlyxPlugin(final String name, final long serial) {
+    protected AbstractAlyxPlugin(final String name, final long serial, final Alyx alyx) {
         this.name = name;
+        this.alyx = alyx;
         this.identifier = String.format("%s.%s", serial, name);
         this.guarded = false;
     }
 
-    protected AbstractAlyxPlugin(final String name, final long serial, final boolean isGuarded) {
-        this(name, serial);
+    protected AbstractAlyxPlugin(final String name, final long serial, final boolean isGuarded, final Alyx alyx) {
+        this(name, serial, alyx);
         this.guarded = isGuarded;
     }
 
@@ -57,16 +58,6 @@ public abstract class AbstractAlyxPlugin<D extends JsonSerializable> implements 
     @Override
     public synchronized Alyx getAlyx() {
         return this.alyx;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void setAlyx(final Alyx alyx) {
-        if (alyx != null) {
-            this.alyx = alyx;
-        }
     }
 
     /**
