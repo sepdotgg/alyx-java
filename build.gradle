@@ -20,9 +20,9 @@ project(':alyx-core') {
     apply plugin: 'java-library'
 }
 
-project(':alyx-plugins') {
+/*project(':alyx-plugins') {
     apply plugin: 'java-library'
-}
+}*/
 
 subprojects {
     group 'gg.sep'

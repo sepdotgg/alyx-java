@@ -6,7 +6,7 @@ plugins {
 dependencies {
     // alyx core dependencies
     implementation project(':alyx-core')
-    implementation project(':alyx-plugins')
+    // implementation project(':alyx-plugins')
     implementation "org.beryx:text-io:3.3.0" // for interactive setup
     implementation "net.harawata:appdirs:1.1.+" // for platform independent application dirs
     implementation "gg.sep:result:1.1.1"

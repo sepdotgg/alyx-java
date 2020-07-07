@@ -20,7 +20,7 @@ sourceControl {
 }
 
 include ':alyx-core'
-include ':alyx-plugins'
+// include ':alyx-plugins'
 include ':alyx'
 
 
