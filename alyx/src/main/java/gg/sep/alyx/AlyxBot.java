@@ -53,6 +53,7 @@ public final class AlyxBot implements Alyx {
     private final BotConfig botConfig;
     private final AlyxCommandListener commandListener;
     private volatile boolean isShutdown = false;
+    private final ConfigHandler configHandler;
     private final JDA jda;
 
     @Getter
@@ -77,6 +78,8 @@ public final class AlyxBot implements Alyx {
     private AlyxBot(final BotEntry botEntry) throws LoginException, IOException {
         this.botEntry = botEntry;
         this.botConfig = loadBotConfig(botEntry);
+        this.configHandler = new ConfigHandler(botEntry.getDataDir());
+
         this.commandPrefix = botConfig.getCommandPrefix().toString();
         this.eventWaiter = new EventWaiter(botEntry.getBotName());
         this.commandListener = new AlyxCommandListener(this);
@@ -111,15 +114,20 @@ public final class AlyxBot implements Alyx {
             final AlyxBot alyx = new AlyxBot(botEntry);
             alyx.registerDefaultParsers();
 
-            // load all of our plugins
+            // find any plugins that are part of the classpath
             final PluginManager pluginManager = new AlyxPluginManager(alyx); // TODO: Path to the plugin folder
             pluginManager.loadPlugins();
             pluginManager.startPlugins();
 
+            final Collection<String> savedLoadedPlugins = alyx.botConfig.getLoadedPlugins();
+
             final List<AlyxPlugin> plugins = pluginManager.getExtensions(AlyxPlugin.class);
-            for (final AlyxPlugin plugin : plugins) {
-                alyx.registerPlugin(plugin);
-                alyx.loadPlugin(plugin);
+            for (final AlyxPlugin plugin: plugins) {
+                alyx.registerPlugin(plugin); // register all plugins | TODO: Revisit whether we need to "register"
+
+                if (savedLoadedPlugins != null && savedLoadedPlugins.contains(plugin.getIdentifier())) {
+                    alyx.loadPlugin(plugin);
+                }
             }
 
             return alyx;
@@ -132,16 +140,77 @@ public final class AlyxBot implements Alyx {
      * {@inheritDoc}
      */
     @Override
-    public void registerPlugin(final AlyxPlugin<?> plugin) {
+    public synchronized void registerPlugin(final AlyxPlugin<?> plugin) {
 
         // TODO: Loading/unloading won't be here so remove the try/catch
         try {
             if (!this.registeredPlugins.add(plugin)) {
                 throw new AlyxException("A matching plugin already exists.");
             }
+            this.configHandler.writeBotConfig(this.botEntry, this.botConfig);
             plugin.register();
-        } catch (final AlyxException e) {
+        } catch (final AlyxException | IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
+        if (!registeredPlugins.contains(plugin)) {
+            throw new AlyxException(
+                String.format("Plugin '%s' is not registered.", plugin.getName())
+            );
+        }
+
+        this.botConfig.getLoadedPlugins().add(plugin.getIdentifier());
+        try {
+            this.configHandler.updateBotConfig(this.botEntry, this.botConfig);
+        } catch (final IOException e) {
+            throw new RuntimeException(e); // TODO handle this properly
+        }
+
+        this.loadedPlugins.add(plugin);
+        this.loadedCommands.addAll(plugin.loadCommands());
+        plugin.load();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unloadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
+        this.unloadPlugin(plugin, false);
+    }
+
+    /**
+     * TODO: Make this method public, but add permissions to override the guard.
+     * @param plugin The plugin to unload.
+     * @param guardOverride If set to {@code true}, guarded plugins can be unloaded.
+     *                      This is extremely dangerous since it's possible they might
+     *                      not ever be able to be loaded again without modifying config files (eg, PluginManager).
+     * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
+     */
+    private void unloadPlugin(final AlyxPlugin<?> plugin, final boolean guardOverride) throws AlyxException {
+        if (plugin.isGuarded() && !guardOverride) {
+            throw new AlyxException(plugin.getName() + " is a guarded plugin.");
+        }
+
+        if (!registeredPlugins.contains(plugin) || !loadedPlugins.contains(plugin)) {
+            throw new AlyxException(
+                String.format("Plugin '%s' is not registered or loaded", plugin.getName())
+            );
+        }
+        plugin.unload();
+        this.loadedPlugins.remove(plugin);
+        this.botConfig.getLoadedPlugins().remove(plugin.getIdentifier());
+        this.loadedCommands.removeAll(plugin.loadCommands());
+        try {
+            this.configHandler.updateBotConfig(this.botEntry, this.botConfig);
+        } catch (final IOException e) {
+            throw new RuntimeException(e); // TODO handle this properly
         }
     }
 
@@ -197,53 +266,6 @@ public final class AlyxBot implements Alyx {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
-        if (!registeredPlugins.contains(plugin)) {
-            throw new AlyxException(
-                String.format("Plugin '%s' is not registered.", plugin.getName())
-            );
-        }
-
-        this.loadedPlugins.add(plugin);
-        this.loadedCommands.addAll(plugin.loadCommands());
-        plugin.load();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void unloadPlugin(final AlyxPlugin<?> plugin) throws AlyxException {
-        this.unloadPlugin(plugin, false);
-    }
-
-    /**
-     * TODO: Make this method public, but add permissions to override the guard.
-     * @param plugin The plugin to unload.
-     * @param guardOverride If set to {@code true}, guarded plugins can be unloaded.
-     *                      This is extremely dangerous since it's possible they might
-     *                      not ever be able to be loaded again without modifying config files (eg, PluginManager).
-     * @throws AlyxException Exception thrown if unloading the plugin fails (it is not registered or is guarded).
-     */
-    private void unloadPlugin(final AlyxPlugin<?> plugin, final boolean guardOverride) throws AlyxException {
-        if (plugin.isGuarded() && !guardOverride) {
-            throw new AlyxException(plugin.getName() + " is a guarded plugin.");
-        }
-
-        if (!registeredPlugins.contains(plugin) || !loadedPlugins.contains(plugin)) {
-            throw new AlyxException(
-                String.format("Plugin '%s' is not registered or loaded", plugin.getName())
-            );
-        }
-        plugin.unload();
-        this.loadedPlugins.remove(plugin);
-        this.loadedCommands.removeAll(plugin.loadCommands());
-    }
-
-    /**
      * Returns the Bot Owner {@link User} for the given instance of JDA.
      *
      * This is a blocking call.
@@ -273,6 +295,10 @@ public final class AlyxBot implements Alyx {
             new ChannelParameterParser(),
             new EmoteParameterParser()
         ).forEach(this::registerParameterParser);
+    }
+
+    private void addRegisteredPlugins(final Collection<String> pluginIds) {
+
     }
 
     /**
