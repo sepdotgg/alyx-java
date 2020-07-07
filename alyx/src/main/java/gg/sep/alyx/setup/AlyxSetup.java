@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import javax.security.auth.login.LoginException;
 
 import lombok.Builder;
@@ -22,6 +23,7 @@ import gg.sep.alyx.plugin.model.AlyxConfig;
 import gg.sep.alyx.plugin.model.BotConfig;
 import gg.sep.alyx.plugin.model.BotEntry;
 import gg.sep.alyx.plugin.storage.StorageType;
+import gg.sep.alyx.plugins.PluginManagerPlugin;
 import gg.sep.result.Err;
 import gg.sep.result.Ok;
 import gg.sep.result.Result;
@@ -124,6 +126,7 @@ public class AlyxSetup {
         // write the default bot config
         final BotConfig defaultBotConfig = BotConfig.builder()
             .botName(botName)
+            .loadedPlugins(Set.of(PluginManagerPlugin.PLUGIN_IDENTIFIER)) // so we can load plugins
             .commandPrefix(botCmdPrefix)
             .discordToken(discordToken)
             .build();

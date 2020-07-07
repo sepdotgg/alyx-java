@@ -24,6 +24,7 @@ import gg.sep.alyx.plugin.commands.Command;
 public class PluginManagerPlugin extends StatelessAlyxPlugin {
     private static final String NAME = "AlyxPluginManager";
 
+    public static final String PLUGIN_IDENTIFIER = String.format("%s.%s", ALYX_PLUGIN_SERIAL, NAME);
     /**
      * Initializes a new instance of the Plugin Manager Plugin.
      * @param alyx The instance of Alyx for which to initialize this plugin.
